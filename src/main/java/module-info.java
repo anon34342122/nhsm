@@ -1,0 +1,19 @@
+module com.anon.nhsm {
+    requires javafx.controls;
+    requires javafx.fxml;
+    requires com.google.gson;
+    requires org.apache.commons.io;
+    requires org.apache.logging.log4j;
+    requires org.apache.logging.log4j.core;
+
+    exports com.anon.nhsm.app;
+    opens com.anon.nhsm.app to javafx.fxml;
+    exports com.anon.nhsm.data;
+    opens com.anon.nhsm.data to javafx.fxml;
+    exports com.anon.nhsm.new_island;
+    opens com.anon.nhsm.new_island to javafx.fxml;
+    exports com.anon.nhsm.yuzu_island;
+    opens com.anon.nhsm.yuzu_island to javafx.fxml;
+    exports com.anon.nhsm.edit_island;
+    opens com.anon.nhsm.edit_island to javafx.fxml;
+}

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Main-Class: com.anon.nhsm.app.Application
+Class-Path: junit-jupiter-api-5.8.2.jar javafx-controls-17.0.2-win.jar j
+ avafx-base-17.0.2-win.jar javafx-controls-17.0.2.jar javafx-fxml-17.0.2
+ -win.jar javafx-base-17.0.2.jar gson-2.10.jar junit-jupiter-engine-5.8.
+ 2.jar javafx-graphics-17.0.2-win.jar junit-platform-engine-1.8.2.jar co
+ mmons-io-2.11.0.jar junit-platform-commons-1.8.2.jar javafx-graphics-17
+ .0.2.jar opentest4j-1.2.0.jar log4j-api-2.19.0.jar log4j-core-2.19.0.jar
+
