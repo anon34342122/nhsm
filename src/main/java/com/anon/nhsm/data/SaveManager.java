@@ -1,7 +1,7 @@
 package com.anon.nhsm.data;
 
 import com.anon.nhsm.app.Application;
-import com.anon.nhsm.yuzu_island.YuzuIslandController;
+import com.anon.nhsm.emulator_local_save.EmulatorLocalSaveController;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.anon.nhsm.edit_island.EditIslandController;
@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SaveManager {
     private static final Logger logger = LogManager.getLogger(SaveManager.class);
+    public static final String UNNAMED_ISLAND = "Unnamed Island";
 
     private final List<SaveData> islandsMetadata = new ArrayList<>();
     private SaveData emulatorSaveMetadata;
@@ -38,7 +39,6 @@ public class SaveManager {
 
     public record Config(File islandsDirectory, File emulatorSaveDirectory) {
         public static Config createYuzu() {
-
             return new Config(Utils.createIslandsDirectory(), Utils.createYuzuSaveDirectory());
         }
     }
@@ -62,16 +62,16 @@ public class SaveManager {
     }
 
     public void setup() throws IOException {
-        final File localYuzuSaveMetadata = new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE);
-        if (localYuzuSaveMetadata.exists()) {
-            final SaveData metadata = readMetdataFile(localYuzuSaveMetadata);
+        final File emulatorSaveMetadataFile = new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE);
+        if (emulatorSaveMetadataFile.exists()) {
+            final SaveData metadata = readMetdataFile(emulatorSaveMetadataFile);
             if (metadata != null) {
                 emulatorSaveMetadata = metadata;
             }
         }
 
         if (emulatorSaveMetadata == null) {
-            emulatorSaveMetadata = new SaveData("Yuzu Island", config.emulatorSaveDirectory().getAbsolutePath(), "", new Date());
+            emulatorSaveMetadata = new SaveData(UNNAMED_ISLAND, config.emulatorSaveDirectory().getAbsolutePath(), "", new Date());
         }
 
         extractIslands();
@@ -96,17 +96,17 @@ public class SaveManager {
         }
     }
 
-    public boolean promptToConvertLocalYuzuIntoIslands(final File yuzuMetadataFile) throws IOException {
-        logger.info("Prompting to convert local yuzu save into an island");
+    public boolean promptToConvertLocalSaveIntoIslands(final File localSaveMetadataFile) throws IOException {
+        logger.info("Prompting to convert emulator local save into an island");
         final FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(YuzuIslandController.class.getResource("yuzu_island.fxml"));
+        fxmlLoader.setLocation(EmulatorLocalSaveController.class.getResource("emulator_local_save.fxml"));
         DialogPane newIslandDialogPane = fxmlLoader.load();
 
-        YuzuIslandController controller = fxmlLoader.getController();
+        EmulatorLocalSaveController controller = fxmlLoader.getController();
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setDialogPane(newIslandDialogPane);
-        dialog.setTitle("Name your Local Yuzu Save as an Island");
+        dialog.setTitle("Name your Emulator Local Save as an Island");
         dialog.initOwner(Application.PRIMARY_STAGE);
 
         Optional<ButtonType> clickedbutton = dialog.showAndWait();
@@ -114,14 +114,14 @@ public class SaveManager {
         if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
             final SaveData newMetadata = new SaveData(controller.getIslandName(), new File(config.islandsDirectory(), controller.getIslandName()).getAbsolutePath(), controller.getIslandDescription(), new Date());
 
-            logger.info("Creating new metadata for converting Local Yuzu Save: " + newMetadata);
-            if (!verifyMetadataNameChange("Could not convert 'Yuzu Local Save' to list of Islands", newMetadata)) {
-                logger.info("Could not write metadata file to Local Yuzu Save because of name conflict: " + newMetadata.island() + " already exists");
+            logger.info("Creating new metadata for converting Emulator Local Save: " + newMetadata);
+            if (!verifyMetadataNameChange("Could not convert 'Emulator Local Save' to list of Islands", newMetadata)) {
+                logger.info("Could not write metadata file to Emulator Local Save directory because of name conflict: " + newMetadata.island() + " already exists");
                 return false;
             }
 
-            writeMetadataFile(yuzuMetadataFile, newMetadata);
-            logger.info("Written metadata file to Local Yuzu Save: " + yuzuMetadataFile.getAbsolutePath());
+            writeMetadataFile(localSaveMetadataFile, newMetadata);
+            logger.info("Written metadata file to emulator local save: " + localSaveMetadataFile.getAbsolutePath());
             return true;
         }
 
@@ -138,21 +138,21 @@ public class SaveManager {
         return true;
     }
 
-    public void applyToYuzuSaveFolder(final SaveData requestedSaveData) throws IOException {
-        logger.info("Attempting to apply '" + requestedSaveData.island() + "' to the yuzu save folder");
+    public void swapWithLocalSave(final SaveData requestedSaveData) throws IOException {
+        logger.info("Attempting to swap the contents of the '" + requestedSaveData.island() + "' island with the emulator local save");
         if (!config.emulatorSaveDirectory().exists() && config.emulatorSaveDirectory().mkdirs()) {
-            logger.info("Copying requested save data's island folder contents to the Local Yuzu Save directory.");
+            logger.info("Copying requested save data's island folder contents to the emulator's local save directory.");
             FileUtils.copyDirectory(new File(requestedSaveData.folder()), config.emulatorSaveDirectory());
         } else {
-            final File yuzuMetadataFile = new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE);
+            final File localSaveMetadataFile = new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE);
 
-            if (!yuzuMetadataFile.exists() && !promptToConvertLocalYuzuIntoIslands(yuzuMetadataFile)) {
+            if (!localSaveMetadataFile.exists() && !promptToConvertLocalSaveIntoIslands(localSaveMetadataFile)) {
                 return;
             }
 
-            final SaveData yuzuSaveMetadata = readMetdataFile(yuzuMetadataFile);
+            final SaveData localSaveMetadata = readMetdataFile(localSaveMetadataFile);
 
-            if (yuzuSaveMetadata != null) {
+            if (localSaveMetadata != null) {
                 final Path tmpPath = Paths.get(FileUtils.getTempDirectory().toString(), UUID.randomUUID().toString());
 
                 // Deleting tmpPath if it exists, then creating it
@@ -161,30 +161,30 @@ public class SaveManager {
                 }
                 Files.createDirectories(tmpPath);
 
-                final File tmpIslandDir = new File(tmpPath.toFile(), yuzuSaveMetadata.island());
+                final File tmpIslandDir = new File(tmpPath.toFile(), localSaveMetadata.island());
 
                 // Update metadata with new date timestmap
-                writeMetadataFile(new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE), SaveData.copyWithNewDate(yuzuSaveMetadata, new Date()));
+                writeMetadataFile(new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE), SaveData.copyWithNewDate(localSaveMetadata, new Date()));
 
-                logger.info("Moving yuzu save directory contents to the temp island directory: " + tmpIslandDir.getAbsolutePath());
+                logger.info("Moving local save directory contents to the temp island directory: " + tmpIslandDir.getAbsolutePath());
                 FileUtils.moveDirectory(config.emulatorSaveDirectory(), tmpIslandDir);
 
-                logger.info("Copy all contents of requested saved island: " + requestedSaveData.folder() + ", to the local yuzu save directory: " + config.emulatorSaveDirectory().getAbsolutePath());
+                logger.info("Copy all contents of requested saved island: " + requestedSaveData.folder() + ", to the local save directory: " + config.emulatorSaveDirectory().getAbsolutePath());
                 FileUtils.copyDirectory(new File(requestedSaveData.folder()), config.emulatorSaveDirectory());
 
-                final File islandSaveDir = new File(yuzuSaveMetadata.folder());
-                logger.info("Delete all contents of the island directory the yuzu save file was from: " + yuzuSaveMetadata.folder());
+                final File islandSaveDir = new File(localSaveMetadata.folder());
+                logger.info("Delete all contents of the island directory the local save file was from: " + localSaveMetadata.folder());
                 FileUtils.deleteDirectory(islandSaveDir);
 
-                logger.info("Move all contents from the temp island directory to the island directory the yuzu save file was from: " + islandSaveDir.getAbsolutePath());
+                logger.info("Move all contents from the temp island directory to the island directory the local save file was from: " + islandSaveDir.getAbsolutePath());
                 FileUtils.moveDirectory(tmpIslandDir, islandSaveDir);
 
                 logger.info("Delete the temp directory: " + tmpPath.toFile().getAbsolutePath());
                 FileUtils.deleteDirectory(tmpPath.toFile());
 
-                emulatorSaveMetadata = requestedSaveData;
+                this.emulatorSaveMetadata = requestedSaveData;
                 extractIslands();
-                logger.info("Successfully applied '" + requestedSaveData.island() + "' to the yuzu save folder");
+                logger.info("Successfully applied '" + requestedSaveData.island() + "' to the local save directory");
             }
         }
     }

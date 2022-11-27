@@ -27,12 +27,12 @@ public class ApplicationController {
     @FXML private TableColumn<SaveData, String> folder;
     @FXML private TableColumn<SaveData, String> description;
     @FXML private TableColumn<SaveData, String> date;
-    @FXML private TableColumn<SaveData, String> yuzuIsland;
-    @FXML private TableColumn<SaveData, String> yuzuFolder;
-    @FXML private TableColumn<SaveData, String> yuzuDescription;
-    @FXML private TableColumn<SaveData, String> yuzuDate;
+    @FXML private TableColumn<SaveData, String> localIsland;
+    @FXML private TableColumn<SaveData, String> localFolder;
+    @FXML private TableColumn<SaveData, String> localDescription;
+    @FXML private TableColumn<SaveData, String> localDate;
     @FXML private TableView<SaveData> saves;
-    @FXML private TableView<SaveData> localYuzuSave;
+    @FXML private TableView<SaveData> emulatorLocalSave;
 
     public AnchorPane getAnchorPane() {
         return ap;
@@ -40,7 +40,7 @@ public class ApplicationController {
 
     public void refreshIslandTables() {
         saves.setItems(FXCollections.observableArrayList(saveManager.getIslandsMetadata()));
-        localYuzuSave.setItems(FXCollections.observableArrayList(saveManager.getEmulatorSaveMetadata()));
+        emulatorLocalSave.setItems(FXCollections.observableArrayList(saveManager.getEmulatorSaveMetadata()));
     }
 
     public void init(final SaveManager saveManager) {
@@ -49,10 +49,10 @@ public class ApplicationController {
         folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().folder()));
         description.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
         date.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
-        yuzuIsland.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island()));
-        yuzuFolder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().folder()));
-        yuzuDescription.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
-        yuzuDate.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
+        localIsland.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island()));
+        localFolder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().folder()));
+        localDescription.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
+        localDate.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
 
         refreshIslandTables();
 
@@ -61,7 +61,7 @@ public class ApplicationController {
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SaveData saveData = row.getItem();
-                    showApplyToYuzuPopup(saveData);
+                    showSwapWithLocalPopup(saveData);
                 }
             });
             return row ;
@@ -93,27 +93,27 @@ public class ApplicationController {
         }
     }
 
-    public void handleApplyToYuzu(ActionEvent actionEvent) {
+    public void handleSwapWithLocal(ActionEvent actionEvent) {
         final SaveData saveData = saves.getSelectionModel().getSelectedItem();
         if (saveData == null) {
             return;
         }
 
-        showApplyToYuzuPopup(saveData);
+        showSwapWithLocalPopup(saveData);
     }
 
-    private void showApplyToYuzuPopup(SaveData saveData) {
+    private void showSwapWithLocalPopup(SaveData saveData) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Apply to Yuzu");
-        alert.setContentText("Do you want to apply this island to your Yuzu folder?");
-        alert.setHeaderText("Applying '" + saveData.island() + "' island to Yuzu");
+        alert.setTitle("Swap with Local");
+        alert.setContentText("Do you want to swap this island with your Emulator Local Save?");
+        alert.setHeaderText("Swapping '" + saveData.island() + "' island with Emulator Local Save");
         alert.setGraphic(new ImageView(getClass().getResource("yuzu.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
         if (type.isPresent() && type.get() == ButtonType.OK) {
             try {
-                saveManager.applyToYuzuSaveFolder(saveData);
+                saveManager.swapWithLocalSave(saveData);
                 refreshIslandTables();
             } catch (IOException e) {
                 Application.openErrorAlert(e);
@@ -176,10 +176,10 @@ public class ApplicationController {
         }
     }
 
-    public void handleYuzuSaveEditor(ActionEvent actionEvent) {
+    public void handleLocalSaveEditor(ActionEvent actionEvent) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Warning");
-        alert.setContentText("Make sure your Yuzu does not have this save file open FIRST before editing its save data.");
+        alert.setContentText("Make sure your Emulator is not running the game FIRST before editing this save data.");
         alert.setHeaderText("WARNING: Make sure the game is not open");
         alert.setGraphic(new ImageView(getClass().getResource("delete.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);

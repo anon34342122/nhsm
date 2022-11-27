@@ -12,8 +12,8 @@ module com.anon.nhsm {
     opens com.anon.nhsm.data to javafx.fxml;
     exports com.anon.nhsm.new_island;
     opens com.anon.nhsm.new_island to javafx.fxml;
-    exports com.anon.nhsm.yuzu_island;
-    opens com.anon.nhsm.yuzu_island to javafx.fxml;
+    exports com.anon.nhsm.emulator_local_save;
+    opens com.anon.nhsm.emulator_local_save to javafx.fxml;
     exports com.anon.nhsm.edit_island;
     opens com.anon.nhsm.edit_island to javafx.fxml;
 }

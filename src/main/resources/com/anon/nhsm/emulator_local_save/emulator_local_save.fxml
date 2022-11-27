@@ -10,7 +10,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<DialogPane prefHeight="236.0" prefWidth="527.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.yuzu_island.YuzuIslandController">
+<DialogPane prefHeight="236.0" prefWidth="527.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.emulator_local_save.EmulatorLocalSaveController">
    <buttonTypes>
       <ButtonType fx:constant="FINISH" />
       <ButtonType fx:constant="CANCEL" />
@@ -39,7 +39,7 @@
                   <Font size="18.0" />
                </font>
             </Text>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="IMPORTANT: You need togive a name to your Local Yuzu Save before you can proceed. This will save it as an island to your islands list." wrappingWidth="500.0">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="IMPORTANT: You need to give a name to your Emulator Local Save before you can proceed. This will save it as a persistent island to your Islands list." wrappingWidth="500.0">
                <font>
                   <Font size="16.0" />
                </font>

@@ -1,4 +1,4 @@
-package com.anon.nhsm.yuzu_island;
+package com.anon.nhsm.emulator_local_save;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -7,7 +7,7 @@ import javafx.scene.layout.AnchorPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class YuzuIslandController {
+public class EmulatorLocalSaveController {
     @FXML private AnchorPane ap;
     @FXML private URL location;
     @FXML private ResourceBundle resources;

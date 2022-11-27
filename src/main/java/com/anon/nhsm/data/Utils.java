@@ -16,7 +16,7 @@ public class Utils {
     public static final String ISLANDS_DIRECTORY_NAME = "islands";
 
     public static File createYuzuSaveDirectory() {
-        return new File(Application.APPLICATION_DIRECTORY, Utils.YUZU_SAVE_DIRECTORY);
+        return new File(Application.USER_HOME, Utils.YUZU_SAVE_DIRECTORY);
     }
 
     public static File createIslandsDirectory() {
