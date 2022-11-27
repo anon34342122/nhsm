@@ -69,11 +69,12 @@
             </TableView>
             <HBox prefHeight="27.0" prefWidth="1067.0" style="-fx-border-color: #b9b9b9; -fx-background-color: #dcdcdc;">
                <children>
-                  <Label text="Local Yuzu Save" translateX="10.0">
+                  <Label text="Emulator Local Save" translateX="10.0">
                      <font>
                         <Font size="24.0" />
                      </font>
                   </Label>
+                  <Label text="NOTICE: Make sure your emulator is not running the game before using NHSM!" textAlignment="CENTER" translateX="40.0" translateY="11.0" />
                   <ButtonBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="315.0" HBox.hgrow="ALWAYS">
                      <buttons>
                         <Button fx:id="yuzuSaveEditor" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleYuzuSaveEditor" text="Save Editor">

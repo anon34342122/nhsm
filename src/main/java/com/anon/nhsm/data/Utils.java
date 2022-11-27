@@ -1,5 +1,7 @@
 package com.anon.nhsm.data;
 
+import com.anon.nhsm.app.Application;
+
 import java.io.File;
 
 public class Utils {
@@ -10,16 +12,14 @@ public class Utils {
     public static final String MAIN_DAT = "main.dat";
     public static final String TMP_DIR_NAME = "tmp";
     public static final String NHSE_EXECUTABLE = "NHSE.WinForms.exe";
-    public static final String PROPERTIES_FILE = "properties.json";
-    public static final String ACNH_ISLANDS_DIR = "acnh_islands";
-    private static final String APPDATA_ENV = "APPDATA";
-    private static final File APP_DATA_DIRECTORY = new File(System.getenv(Utils.APPDATA_ENV));
+    public static final File APP_PROPERTIES_FILE = new File(Application.APPLICATION_DIRECTORY, "nhsm_properties.json");
+    public static final String ISLANDS_DIRECTORY_NAME = "islands";
 
     public static File createYuzuSaveDirectory() {
-        return new File(APP_DATA_DIRECTORY, Utils.YUZU_SAVE_DIRECTORY);
+        return new File(Application.APPLICATION_DIRECTORY, Utils.YUZU_SAVE_DIRECTORY);
     }
 
     public static File createIslandsDirectory() {
-        return new File(APP_DATA_DIRECTORY, Utils.ACNH_ISLANDS_DIR);
+        return new File(Application.APPLICATION_DIRECTORY, Utils.ISLANDS_DIRECTORY_NAME);
     }
 }

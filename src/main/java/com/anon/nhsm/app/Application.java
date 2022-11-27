@@ -1,6 +1,8 @@
 package com.anon.nhsm.app;
 
 import com.anon.nhsm.data.SaveManager;
+import com.anon.nhsm.data.SystemInfo;
+import com.anon.nhsm.data.Utils;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,15 +15,18 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 
 public class Application extends javafx.application.Application {
+    public static File APPLICATION_DIRECTORY;
     public static String APPLICATION_NAME = "NHSM";
 
     static Logger logger;
@@ -57,6 +62,7 @@ public class Application extends javafx.application.Application {
 
     public static void main(String[] args) {
         try {
+            APPLICATION_DIRECTORY = createApplicationDirectory();
             SAVE_MANAGER = new SaveManager(SaveManager.Config.createYuzu());
             SAVE_MANAGER.setup();
         } catch (IOException e) {
@@ -103,5 +109,31 @@ public class Application extends javafx.application.Application {
         alert.setOnCloseRequest(event -> onClickedOk.run());
 
         alert.showAndWait();
+    }
+
+    private static File createApplicationDirectory() throws IOException {
+        final String userHome = FileUtils.getUserDirectoryPath();
+        final File applicationDirectory;
+        final SystemInfo.Platform platform = SystemInfo.getPlatform();
+        switch (platform) {
+            case LINUX, SOLARIS -> applicationDirectory = new File(userHome, Application.APPLICATION_NAME + '/');
+            case WINDOWS -> {
+                final String applicationData = System.getenv("APPDATA");
+
+                if (applicationData == null) {
+                    throw new IOException("Appdata was not found on Windows device, aborting.");
+                }
+
+                applicationDirectory = new File(applicationData, Application.APPLICATION_NAME + '/');
+            }
+            case MAC -> applicationDirectory = new File(userHome, "Library/Application Support/" + Application.APPLICATION_NAME);
+            default -> throw new IOException("OS not supported: " + platform.name());
+        }
+
+        if (!applicationDirectory.exists() && !applicationDirectory.mkdirs()) {
+            throw new IOException("The application directory could not be created: " + applicationDirectory);
+        }
+
+        return applicationDirectory;
     }
 }

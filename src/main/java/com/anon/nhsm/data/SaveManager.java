@@ -79,8 +79,7 @@ public class SaveManager {
     }
 
     private void validateAndLoadProperties() throws IOException {
-        final File propertiesFile = new File(config.islandsDirectory(), Utils.PROPERTIES_FILE);
-        final SaveManagerProperties properties = readPropertiesFile(propertiesFile);
+        final SaveManagerProperties properties = readPropertiesFile(Utils.APP_PROPERTIES_FILE);
 
         if (properties != null) {
             final File nhseExecutableFile = new File(properties.pathToNHSExecutable());
@@ -89,7 +88,7 @@ public class SaveManager {
                 this.properties = properties;
             } else { // Delete because NHSE executable file no longer exists
                 try {
-                    FileUtils.delete(propertiesFile);
+                    FileUtils.delete(Utils.APP_PROPERTIES_FILE);
                 } catch (IOException e) {
                     throw new IOException("Failed to delete properties file in acnh_islands directory.", e);
                 }
@@ -395,9 +394,8 @@ public class SaveManager {
             final File executable = new File(selectedDirectory, Utils.NHSE_EXECUTABLE);
 
             if (executable.exists()) {
-                final File propertiesFile = new File(config.islandsDirectory(), Utils.PROPERTIES_FILE);
                 final SaveManagerProperties properties = new SaveManagerProperties(executable.getAbsolutePath());
-                writePropertiesFile(propertiesFile, properties);
+                writePropertiesFile(Utils.APP_PROPERTIES_FILE, properties);
                 this.properties = properties;
                 return true;
             }
@@ -407,14 +405,37 @@ public class SaveManager {
     }
 
     public boolean openSaveEditorFor(final Stage primaryStage, final Path islandDirectory) throws IOException {
-        if (properties == null && !promptSelectNHSEExecutable(primaryStage)) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setContentText("The selected directory does not contain an NHSE executable with the following name: " + Utils.NHSE_EXECUTABLE);
-            alert.setHeaderText("Cannot use Save Editor");
-            alert.initOwner(Application.PRIMARY_STAGE);
-            alert.showAndWait();
-            return false;
+        if (properties == null) {
+            if (!promptSelectNHSEExecutable(primaryStage)) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning");
+                alert.setContentText("The selected directory does not contain an NHSE executable with the following name: " + Utils.NHSE_EXECUTABLE);
+                alert.setHeaderText("Cannot use Save Editor");
+                alert.initOwner(Application.PRIMARY_STAGE);
+                alert.showAndWait();
+                return false;
+            }
+        } else {
+            final File directoryNHSExecutable = new File(properties.pathToNHSExecutable());
+
+            if (!directoryNHSExecutable.exists()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning");
+                alert.setContentText("Your previously chosen directory for the NHSE executable no longer exists or the executable is missing. Next prompt will have you select the directory again.");
+                alert.setHeaderText("Re-select NHSE directory");
+                alert.initOwner(Application.PRIMARY_STAGE);
+                alert.showAndWait();
+
+                if (!promptSelectNHSEExecutable(primaryStage)) {
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING);
+                    alert1.setTitle("Warning");
+                    alert1.setContentText("The selected directory does not contain an NHSE executable with the following name: " + Utils.NHSE_EXECUTABLE);
+                    alert1.setHeaderText("Cannot use Save Editor");
+                    alert1.initOwner(Application.PRIMARY_STAGE);
+                    alert1.showAndWait();
+                    return false;
+                }
+            }
         }
 
         try {
