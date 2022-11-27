@@ -30,6 +30,8 @@ public class Application extends javafx.application.Application {
 
     private static IOException SETUP_EXCEPTION_THROWN;
 
+    private static SaveManager SAVE_MANAGER;
+
     @Override
     public void start(Stage stage) throws IOException {
         logger = LogManager.getLogger(Application.class);
@@ -46,6 +48,7 @@ public class Application extends javafx.application.Application {
             stage.setScene(scene);
             stage.getIcons().add(new Image(getClass().getResourceAsStream("app_icon.png")));
             ApplicationController applicationController = fxmlLoader.getController();
+            applicationController.init(SAVE_MANAGER);
             ANCHOR_PANE = applicationController.getAnchorPane();
             PRIMARY_STAGE = stage;
             stage.show();
@@ -54,7 +57,8 @@ public class Application extends javafx.application.Application {
 
     public static void main(String[] args) {
         try {
-            SaveManager.setup();
+            SAVE_MANAGER = new SaveManager(SaveManager.Config.createYuzu());
+            SAVE_MANAGER.setup();
         } catch (IOException e) {
             SETUP_EXCEPTION_THROWN = e;
         }

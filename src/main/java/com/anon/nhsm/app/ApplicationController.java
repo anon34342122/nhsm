@@ -11,8 +11,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,7 +19,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class ApplicationController {
-    private static final Logger logger = LogManager.getLogger(ApplicationController.class);
+    private SaveManager saveManager;
     @FXML private AnchorPane ap;
     @FXML private URL location;
     @FXML private ResourceBundle resources;
@@ -41,11 +39,12 @@ public class ApplicationController {
     }
 
     public void refreshIslandTables() {
-        saves.setItems(FXCollections.observableArrayList(SaveManager.ISLAND_SAVES));
-        localYuzuSave.setItems(FXCollections.observableArrayList(SaveManager.LOCAL_YUZU_SAVE));
+        saves.setItems(FXCollections.observableArrayList(saveManager.getIslandsMetadata()));
+        localYuzuSave.setItems(FXCollections.observableArrayList(saveManager.getEmulatorSaveMetadata()));
     }
 
-    public void initialize() {
+    public void init(final SaveManager saveManager) {
+        this.saveManager = saveManager;
         island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island()));
         folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().folder()));
         description.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
@@ -85,7 +84,7 @@ public class ApplicationController {
             Optional<ButtonType> clickedbutton = dialog.showAndWait();
 
             if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
-                if (SaveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription())) {
+                if (saveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription())) {
                     refreshIslandTables();
                 }
             }
@@ -114,7 +113,7 @@ public class ApplicationController {
 
         if (type.isPresent() && type.get() == ButtonType.OK) {
             try {
-                SaveManager.applyToYuzuSaveFolder(saveData);
+                saveManager.applyToYuzuSaveFolder(saveData);
                 refreshIslandTables();
             } catch (IOException e) {
                 Application.openErrorAlert(e);
@@ -138,7 +137,7 @@ public class ApplicationController {
 
         if (type.isPresent() && type.get() == ButtonType.OK) {
             try {
-                SaveManager.deleteIsland(saveData);
+                saveManager.deleteIsland(saveData);
                 refreshIslandTables();
             } catch (IOException e) {
                 Application.openErrorAlert(e);
@@ -153,7 +152,7 @@ public class ApplicationController {
         }
 
         try {
-            SaveManager.duplicateIsland(saveData);
+            saveManager.duplicateIsland(saveData);
             refreshIslandTables();
         } catch (IOException e) {
             Application.openErrorAlert(e);
@@ -168,7 +167,7 @@ public class ApplicationController {
         }
 
         try {
-            final SaveData newSaveData = SaveManager.editIslandDetails(oldSaveData);
+            final SaveData newSaveData = saveManager.editIslandDetails(oldSaveData);
             if (newSaveData != oldSaveData) {
                 refreshIslandTables();
             }
@@ -188,7 +187,7 @@ public class ApplicationController {
 
         if (type.isPresent() && type.get() == ButtonType.OK) {
             try {
-                SaveManager.openSaveEditorFor(Application.PRIMARY_STAGE, SaveManager.YUZU_SAVE_DIRECTORY.toPath());
+                saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, saveManager.getConfig().emulatorSaveDirectory().toPath());
             } catch (IOException e) {
                 Application.openErrorAlert(e);
             }
@@ -208,7 +207,7 @@ public class ApplicationController {
         }
 
         try {
-            SaveManager.openSaveEditorFor(Application.PRIMARY_STAGE, Paths.get(saveData.folder()));
+            saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, Paths.get(saveData.folder()));
         } catch (IOException e) {
             Application.openErrorAlert(e);
         }
