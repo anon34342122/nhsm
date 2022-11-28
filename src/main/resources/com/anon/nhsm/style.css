@@ -1,0 +1,36 @@
+@font-face {
+    font-family: 'Roboto';
+    src: url('fonts/Roboto-Medium.ttf');
+}
+@font-face {
+    font-family: 'Roboto';
+    src: url('fonts/Roboto-Light.ttf');
+}
+
+.subtext {
+    font-family: 'Roboto';
+    -fx-font-family: "Roboto Light";
+    -fx-font-size: 20;
+}
+
+.title {
+    font-family: 'Roboto';
+    -fx-font-family: "Roboto Medium";
+    -fx-font-size: 25;
+}
+
+.emulatorButton {
+    -fx-background-color: #F4F4F4;
+}
+
+.emulatorButton:hover {
+    -fx-background-color: #D6DEE0;
+}
+
+.emulatorButton:pressed {
+    -fx-background-color: #ACC0C9;
+}
+
+.contentArea {
+    -fx-background-color: #e0e0e0;
+}

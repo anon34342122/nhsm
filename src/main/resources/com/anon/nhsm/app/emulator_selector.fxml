@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="ap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="665.0" prefWidth="1067.0" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.app.EmulatorSelectorController">
+   <children>
+      <GridPane prefHeight="665.0" prefWidth="1067.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="498.0" minWidth="10.0" prefWidth="396.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="681.0" minWidth="10.0" prefWidth="671.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="84.0" vgrow="ALWAYS" />
+         </rowConstraints>
+         <children>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+               <children>
+                  <VBox fx:id="contentAreaNoSelection" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label text="No Emulator selected yet." />
+                     </children>
+                  </VBox>
+                  <VBox fx:id="contentAreaRyujinx" alignment="CENTER" disable="true" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label text="RYUJINX" />
+                     </children>
+                  </VBox>
+                  <VBox fx:id="contentAreaYuzu" alignment="CENTER" disable="true" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label text="YUZU" />
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+            <VBox alignment="TOP_CENTER" prefHeight="640.0" prefWidth="119.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="70.0" prefWidth="498.0">
+                     <children>
+                        <Label styleClass="title" text="Supported Emulators">
+                           <font>
+                              <Font name="Berlin Sans FB" />
+                           </font>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" prefHeight="19.0" prefWidth="396.0">
+                     <children>
+                        <Separator prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+                  <HBox fx:id="sideMenuRyujinx" alignment="CENTER_LEFT" onMouseClicked="#handleClickMenu" prefHeight="90.0" prefWidth="200.0" spacing="30.0" styleClass="emulatorButton" stylesheets="@../style.css">
+                     <children>
+                        <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@ryujinx.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </ImageView>
+                        <Label styleClass="subtext" text="Ryujinx">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="30.0" right="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
+                  <HBox fx:id="sideMenuYuzu" alignment="CENTER_LEFT" onMouseClicked="#handleClickMenu" prefHeight="90.0" prefWidth="200.0" spacing="30.0" styleClass="emulatorButton" stylesheets="@../style.css">
+                     <children>
+                        <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@yuzu_emulator.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </ImageView>
+                        <Label styleClass="subtext" text="Yuzu">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="30.0" right="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
+               </children>
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin>
+            </VBox>
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>

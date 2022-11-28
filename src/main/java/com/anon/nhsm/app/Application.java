@@ -46,19 +46,38 @@ public class Application extends javafx.application.Application {
         if (SETUP_EXCEPTION_THROWN != null) {
             openErrorAlert(SETUP_EXCEPTION_THROWN, Platform::exit);
         } else {
-            final URL view = Application.class.getResource("application.fxml");
-            FXMLLoader fxmlLoader = new FXMLLoader(view);
-            Parent root = fxmlLoader.load();
-            Scene scene = new Scene(root);
-            stage.setTitle(APPLICATION_NAME);
-            stage.setScene(scene);
-            stage.getIcons().add(new Image(getClass().getResourceAsStream("app_icon.png")));
-            ApplicationController applicationController = fxmlLoader.getController();
-            applicationController.init(SAVE_MANAGER);
-            ANCHOR_PANE = applicationController.getAnchorPane();
-            PRIMARY_STAGE = stage;
-            stage.show();
+            showEmulatorSelector(stage);
         }
+    }
+
+    private void showEmulatorSelector(final Stage stage) throws IOException {
+        final URL view = Application.class.getResource("emulator_selector.fxml");
+        FXMLLoader fxmlLoader = new FXMLLoader(view);
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root);
+        stage.setTitle(APPLICATION_NAME);
+        stage.setScene(scene);
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("app_icon.png")));
+        EmulatorSelectorController applicationController = fxmlLoader.getController();
+        applicationController.init(SAVE_MANAGER);
+        ANCHOR_PANE = applicationController.getAnchorPane();
+        PRIMARY_STAGE = stage;
+        stage.show();
+    }
+
+    private void showApplication(final Stage stage) throws IOException {
+        final URL view = Application.class.getResource("application.fxml");
+        FXMLLoader fxmlLoader = new FXMLLoader(view);
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root);
+        stage.setTitle(APPLICATION_NAME);
+        stage.setScene(scene);
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("app_icon.png")));
+        ApplicationController applicationController = fxmlLoader.getController();
+        applicationController.init(SAVE_MANAGER);
+        ANCHOR_PANE = applicationController.getAnchorPane();
+        PRIMARY_STAGE = stage;
+        stage.show();
     }
 
     public static void main(String[] args) {
