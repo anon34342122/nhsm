@@ -68,7 +68,7 @@ public class SaveManager {
     }
 
     public void setup() throws IOException {
-        final File emulatorSaveMetadataFile = new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE);
+        final File emulatorSaveMetadataFile = new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE);
         if (emulatorSaveMetadataFile.exists()) {
             final SaveData metadata = readMetdataFile(emulatorSaveMetadataFile);
             if (metadata != null) {
@@ -131,7 +131,7 @@ public class SaveManager {
             logger.info("Copying requested save data's island folder contents to the emulator's local save directory.");
             FileUtils.copyDirectory(new File(requestedSaveData.folder()), config.emulatorSaveDirectory());
         } else {
-            final File localSaveMetadataFile = new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE);
+            final File localSaveMetadataFile = new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE);
 
             if (!localSaveMetadataFile.exists() && !promptToConvertLocalSaveIntoIslands(localSaveMetadataFile)) {
                 return;
@@ -151,7 +151,7 @@ public class SaveManager {
                 final File tmpIslandDir = new File(tmpPath.toFile(), localSaveMetadata.island());
 
                 // Update metadata with new date timestmap
-                writeMetadataFile(new File(config.emulatorSaveDirectory(), Utils.SAVE_METADATA_FILE), SaveData.copyWithNewDate(localSaveMetadata, new Date()));
+                writeMetadataFile(new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE), SaveData.copyWithNewDate(localSaveMetadata, new Date()));
 
                 logger.info("Moving local save directory contents to the temp island directory: " + tmpIslandDir.getAbsolutePath());
                 FileUtils.moveDirectory(config.emulatorSaveDirectory(), tmpIslandDir);
@@ -195,13 +195,13 @@ public class SaveManager {
                 }
 
                 final List<String> fileNames = Arrays.asList(subFiles);
-                final boolean isValidIsland = fileNames.contains(Utils.SAVE_METADATA_FILE) || fileNames.contains(Utils.MAIN_DAT);
-                return isValidIsland && !islandDir.getName().equals(Utils.TMP_DIR_NAME) && islandDir.isDirectory();
+                final boolean isValidIsland = fileNames.contains(AppPaths.SAVE_METADATA_FILE) || fileNames.contains(AppPaths.MAIN_DAT);
+                return isValidIsland && !islandDir.getName().equals(AppPaths.TMP_DIR_NAME) && islandDir.isDirectory();
             });
 
             if (directories != null) {
                 for (final File islandDir : directories) {
-                    final File metadata = new File(islandDir, Utils.SAVE_METADATA_FILE);
+                    final File metadata = new File(islandDir, AppPaths.SAVE_METADATA_FILE);
                     final SaveData saveDataFromMetadata = readMetdataFile(metadata);
 
                     if (emulatorSaveMetadata.equals(saveDataFromMetadata)) {
@@ -283,7 +283,7 @@ public class SaveManager {
                 FileUtils.deleteDirectory(oldSaveDir);
             }
 
-            final File newMetadataFile = new File(newSaveDir, Utils.SAVE_METADATA_FILE);
+            final File newMetadataFile = new File(newSaveDir, AppPaths.SAVE_METADATA_FILE);
             writeMetadataFile(newMetadataFile, newSaveData);
             extractIslands();
         } catch (final IOException e) {
@@ -297,7 +297,7 @@ public class SaveManager {
         logger.info("Creating new island: " + islandName + ", with description: " + islandDescription);
 
         try {
-            final File newIslandMetadata = new File(newIslandDir, Utils.SAVE_METADATA_FILE);
+            final File newIslandMetadata = new File(newIslandDir, AppPaths.SAVE_METADATA_FILE);
             final SaveData metadata = new SaveData(islandName, newIslandDir.getAbsolutePath(), islandDescription, new Date());
 
             if (!verifyMetadataNameChange("Could not create new '" + metadata.island() + "' island", metadata)) {
@@ -330,7 +330,7 @@ public class SaveManager {
             FileUtils.forceMkdir(duplicateIslandDir);
             FileUtils.copyDirectory(oldIslandDir, duplicateIslandDir);
 
-            final File metadata = new File(duplicateIslandDir, Utils.SAVE_METADATA_FILE);
+            final File metadata = new File(duplicateIslandDir, AppPaths.SAVE_METADATA_FILE);
             writeMetadataFile(metadata, duplicateIslandMetadata);
             extractIslands();
         } catch (final IOException e) {
@@ -360,7 +360,7 @@ public class SaveManager {
         if (type.isPresent() && type.get() == ButtonType.OK) {
             final DirectoryChooser directoryChooser = new DirectoryChooser();
             final File selectedDirectory = directoryChooser.showDialog(primaryStage);
-            final File executable = new File(selectedDirectory, Utils.NHSE_EXECUTABLE);
+            final File executable = new File(selectedDirectory, AppPaths.NHSE_EXECUTABLE);
 
             if (executable.exists()) {
                 setAndWriteAppProperties(this.properties.copy().nhsExecutable(executable).build());
@@ -376,7 +376,7 @@ public class SaveManager {
             if (!promptSelectNHSEExecutable(primaryStage)) {
                 final Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning");
-                alert.setContentText("The selected directory does not contain an NHSE executable with the following name: " + Utils.NHSE_EXECUTABLE);
+                alert.setContentText("The selected directory does not contain an NHSE executable with the following name: " + AppPaths.NHSE_EXECUTABLE);
                 alert.setHeaderText("Cannot use Save Editor");
                 alert.initOwner(Application.PRIMARY_STAGE);
                 alert.showAndWait();
@@ -394,7 +394,7 @@ public class SaveManager {
                 if (!promptSelectNHSEExecutable(primaryStage)) {
                     final Alert alert1 = new Alert(Alert.AlertType.WARNING);
                     alert1.setTitle("Warning");
-                    alert1.setContentText("The selected directory does not contain an NHSE executable with the following name: " + Utils.NHSE_EXECUTABLE);
+                    alert1.setContentText("The selected directory does not contain an NHSE executable with the following name: " + AppPaths.NHSE_EXECUTABLE);
                     alert1.setHeaderText("Cannot use Save Editor");
                     alert1.initOwner(Application.PRIMARY_STAGE);
                     alert1.showAndWait();
@@ -404,7 +404,7 @@ public class SaveManager {
         }
 
         try {
-            final Path mainDat = islandDirectory.resolve(Utils.MAIN_DAT);
+            final Path mainDat = islandDirectory.resolve(AppPaths.MAIN_DAT);
 
             if (mainDat.toFile().exists()) {
                 Application.ANCHOR_PANE.setDisable(true);

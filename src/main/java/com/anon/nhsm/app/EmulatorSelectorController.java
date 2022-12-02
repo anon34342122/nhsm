@@ -1,7 +1,7 @@
 package com.anon.nhsm.app;
 
 import com.anon.nhsm.data.SaveManager;
-import com.anon.nhsm.data.Utils;
+import com.anon.nhsm.data.AppPaths;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -121,7 +121,7 @@ public class EmulatorSelectorController {
     }
 
     private File tryGetRyujinxSavesDirectory() {
-        final File homeDirectory = Utils.createRyujinxSavesDirectory();
+        final File homeDirectory = AppPaths.createRyujinxSavesDirectory();
 
         if (homeDirectory.exists() && homeDirectory.isDirectory()) {
             return homeDirectory;
@@ -145,7 +145,7 @@ public class EmulatorSelectorController {
             return;
         }
 
-        final File mainDatFile = new File(selectedDirectory, Utils.MAIN_DAT);
+        final File mainDatFile = new File(selectedDirectory, AppPaths.MAIN_DAT);
 
         if (!mainDatFile.exists()) {
             final Alert alert = new Alert(Alert.AlertType.WARNING);

@@ -4,7 +4,7 @@ import com.anon.nhsm.app.Application;
 
 import java.io.File;
 
-public class Utils {
+public class AppPaths {
     public static final String YUZU_GAME_ID = "01006F8002326000";
     public static final String YUZU_AC_SAVE_PATH = "\\yuzu\\nand\\user\\save\\0000000000000000\\00000000000000000000000000000000\\" + YUZU_GAME_ID;
 
@@ -18,14 +18,14 @@ public class Utils {
     public static final String ISLANDS_DIRECTORY_NAME = "islands";
 
     public static File createRyujinxSavesDirectory() {
-        return new File(Application.USER_HOME, Utils.RYUJINX_SAVES_PATH);
+        return new File(Application.USER_HOME, AppPaths.RYUJINX_SAVES_PATH);
     }
 
     public static File createYuzuSaveDirectory() {
-        return new File(Application.USER_HOME, Utils.YUZU_AC_SAVE_PATH);
+        return new File(Application.USER_HOME, AppPaths.YUZU_AC_SAVE_PATH);
     }
 
     public static File createIslandsDirectory() {
-        return new File(Application.APPLICATION_DIRECTORY, Utils.ISLANDS_DIRECTORY_NAME);
+        return new File(Application.APPLICATION_DIRECTORY, AppPaths.ISLANDS_DIRECTORY_NAME);
     }
 }

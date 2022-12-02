@@ -1,10 +1,9 @@
 package com.anon.nhsm.app;
 
 import com.anon.nhsm.data.EmulatorType;
-import com.anon.nhsm.data.Utils;
+import com.anon.nhsm.data.AppPaths;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
 
@@ -73,10 +72,10 @@ public record AppProperties(File islandsDirectory, File nhsExecutable, File ryuj
     }
 
     public static class IO {
-        private static final AppProperties DEFAULT_PROPERTIES = AppProperties.builder().islandsDirectory(Utils.createIslandsDirectory()).build();
+        private static final AppProperties DEFAULT_PROPERTIES = AppProperties.builder().islandsDirectory(AppPaths.createIslandsDirectory()).build();
 
         public static AppProperties loadAndValidateAppProperties() throws IOException {
-            final AppProperties properties = readAppPropertiesFile(Utils.APP_PROPERTIES_FILE);
+            final AppProperties properties = readAppPropertiesFile(AppPaths.APP_PROPERTIES_FILE);
 
             if (properties != null) { // Validate file paths and remove if no longer exist
                 final AppProperties.Builder validationBuilder = properties.copy();

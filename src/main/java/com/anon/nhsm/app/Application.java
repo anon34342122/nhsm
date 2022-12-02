@@ -3,7 +3,7 @@ package com.anon.nhsm.app;
 import com.anon.nhsm.app.json.FileToAbsolutePathAdapter;
 import com.anon.nhsm.data.SaveManager;
 import com.anon.nhsm.data.SystemInfo;
-import com.anon.nhsm.data.Utils;
+import com.anon.nhsm.data.AppPaths;
 import com.google.gson.GsonBuilder;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -51,7 +51,7 @@ public class Application extends javafx.application.Application {
     public static void main(final String[] args) {
         try {
             APPLICATION_DIRECTORY = createApplicationDirectory();
-            final SaveManager.Config saveManagerConfig = new SaveManager.Config(Utils.createYuzuSaveDirectory());
+            final SaveManager.Config saveManagerConfig = new SaveManager.Config(AppPaths.createYuzuSaveDirectory());
             SAVE_MANAGER = new SaveManager(AppProperties.IO.loadAndValidateAppProperties(), saveManagerConfig);
             SAVE_MANAGER.setup();
         } catch (final IOException e) {
@@ -104,7 +104,7 @@ public class Application extends javafx.application.Application {
     }
 
     public static AppProperties writeAppProperties(final AppProperties properties) throws IOException {
-        AppProperties.IO.writeAppPropertiesFile(Utils.APP_PROPERTIES_FILE, properties);
+        AppProperties.IO.writeAppPropertiesFile(AppPaths.APP_PROPERTIES_FILE, properties);
         return properties;
     }
 
