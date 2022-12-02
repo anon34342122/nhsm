@@ -36,7 +36,7 @@ public class SaveManager {
     public static final String UNNAMED_ISLAND = "Unnamed Island";
 
     private final List<SaveData> islandsMetadata = new ArrayList<>();
-    private SaveData emulatorSaveMetadata;
+    private SaveData emulatorSaveData;
 
     private AppProperties properties;
     public record Config(File emulatorSaveDirectory) {}
@@ -56,8 +56,8 @@ public class SaveManager {
         this.properties = Main.writeAppProperties(properties);
     }
 
-    public SaveData getEmulatorSaveMetadata() {
-        return emulatorSaveMetadata;
+    public SaveData getEmulatorSaveData() {
+        return emulatorSaveData;
     }
 
     public List<SaveData> getIslandsMetadata() {
@@ -69,16 +69,16 @@ public class SaveManager {
     }
 
     public void setup() throws IOException {
-        final File emulatorSaveMetadataFile = new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE);
+        final File emulatorSaveMetadataFile = new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE_NAME);
         if (emulatorSaveMetadataFile.exists()) {
             final SaveData metadata = readMetdataFile(emulatorSaveMetadataFile);
             if (metadata != null) {
-                emulatorSaveMetadata = metadata;
+                emulatorSaveData = metadata;
             }
         }
 
-        if (emulatorSaveMetadata == null) {
-            emulatorSaveMetadata = new SaveData(UNNAMED_ISLAND, config.emulatorSaveDirectory().getAbsolutePath(), "", new Date());
+        if (emulatorSaveData == null) {
+            emulatorSaveData = new SaveData(UNNAMED_ISLAND, config.emulatorSaveDirectory().getAbsolutePath(), "", new Date());
         }
 
         extractIslands();
@@ -132,7 +132,7 @@ public class SaveManager {
             logger.info("Copying requested save data's island folder contents to the emulator's local save directory.");
             FileUtils.copyDirectory(new File(requestedSaveData.folder()), config.emulatorSaveDirectory());
         } else {
-            final File localSaveMetadataFile = new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE);
+            final File localSaveMetadataFile = new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE_NAME);
 
             if (!localSaveMetadataFile.exists() && !promptToConvertLocalSaveIntoIslands(localSaveMetadataFile)) {
                 return;
@@ -152,13 +152,19 @@ public class SaveManager {
                 final File tmpIslandDir = new File(tmpPath.toFile(), localSaveMetadata.island());
 
                 // Update metadata with new date timestmap
-                writeMetadataFile(new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE), SaveData.copyWithNewDate(localSaveMetadata, new Date()));
+                writeMetadataFile(new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE_NAME), SaveData.copyWithNewDate(localSaveMetadata, new Date()));
 
                 logger.info("Moving local save directory contents to the temp island directory: " + tmpIslandDir.getAbsolutePath());
                 FileUtils.moveDirectory(config.emulatorSaveDirectory(), tmpIslandDir);
 
                 logger.info("Copy all contents of requested saved island: " + requestedSaveData.folder() + ", to the local save directory: " + config.emulatorSaveDirectory().getAbsolutePath());
                 FileUtils.copyDirectory(new File(requestedSaveData.folder()), config.emulatorSaveDirectory());
+
+                logger.info("Create an emulator lock file for the requested save data's island directory: " + requestedSaveData.folder());
+                final File emulatorLockFile = new File(requestedSaveData.folder(), AppPaths.EMULATOR_LOCK_FILE_NAME);
+                if (!emulatorLockFile.createNewFile()) {
+                    logger.error("Something went wrong, the emulator lock file could not be made.");
+                }
 
                 final File islandSaveDir = new File(localSaveMetadata.folder());
                 logger.info("Delete all contents of the island directory the local save file was from: " + localSaveMetadata.folder());
@@ -170,7 +176,7 @@ public class SaveManager {
                 logger.info("Delete the temp directory: " + tmpPath.toFile().getAbsolutePath());
                 FileUtils.deleteDirectory(tmpPath.toFile());
 
-                this.emulatorSaveMetadata = requestedSaveData;
+                this.emulatorSaveData = requestedSaveData;
                 extractIslands();
                 logger.info("Successfully applied '" + requestedSaveData.island() + "' to the local save directory");
             }
@@ -196,21 +202,23 @@ public class SaveManager {
                 }
 
                 final List<String> fileNames = Arrays.asList(subFiles);
-                final boolean isValidIsland = fileNames.contains(AppPaths.SAVE_METADATA_FILE) || fileNames.contains(AppPaths.MAIN_DAT);
+                final boolean isValidIsland = fileNames.contains(AppPaths.SAVE_METADATA_FILE_NAME) || fileNames.contains(AppPaths.MAIN_DAT);
                 return isValidIsland && !islandDir.getName().equals(AppPaths.TMP_DIR_NAME) && islandDir.isDirectory();
             });
 
             if (directories != null) {
                 for (final File islandDir : directories) {
-                    final File metadata = new File(islandDir, AppPaths.SAVE_METADATA_FILE);
-                    final SaveData saveDataFromMetadata = readMetdataFile(metadata);
+                    final File metadata = new File(islandDir, AppPaths.SAVE_METADATA_FILE_NAME);
+                    final File emulatorLockFile = new File(islandDir, AppPaths.EMULATOR_LOCK_FILE_NAME);
 
-                    if (emulatorSaveMetadata.equals(saveDataFromMetadata)) {
+                    final SaveData islandSaveData = readMetdataFile(metadata);
+
+                    if (emulatorSaveData.equals(islandSaveData) || emulatorLockFile.exists()) {
                         continue;
                     }
 
-                    if (saveDataFromMetadata != null) {
-                        islandsMetadata.add(saveDataFromMetadata);
+                    if (islandSaveData != null) {
+                        islandsMetadata.add(islandSaveData);
                     } else {
                         try {
                             final BasicFileAttributes attributes = Files.readAttributes(islandDir.toPath(), BasicFileAttributes.class);
@@ -284,7 +292,7 @@ public class SaveManager {
                 FileUtils.deleteDirectory(oldSaveDir);
             }
 
-            final File newMetadataFile = new File(newSaveDir, AppPaths.SAVE_METADATA_FILE);
+            final File newMetadataFile = new File(newSaveDir, AppPaths.SAVE_METADATA_FILE_NAME);
             writeMetadataFile(newMetadataFile, newSaveData);
             extractIslands();
         } catch (final IOException e) {
@@ -298,7 +306,7 @@ public class SaveManager {
         logger.info("Creating new island: " + islandName + ", with description: " + islandDescription);
 
         try {
-            final File newIslandMetadata = new File(newIslandDir, AppPaths.SAVE_METADATA_FILE);
+            final File newIslandMetadata = new File(newIslandDir, AppPaths.SAVE_METADATA_FILE_NAME);
             final SaveData metadata = new SaveData(islandName, newIslandDir.getAbsolutePath(), islandDescription, new Date());
 
             if (!verifyMetadataNameChange("Could not create new '" + metadata.island() + "' island", metadata)) {
@@ -331,7 +339,7 @@ public class SaveManager {
             FileUtils.forceMkdir(duplicateIslandDir);
             FileUtils.copyDirectory(oldIslandDir, duplicateIslandDir);
 
-            final File metadata = new File(duplicateIslandDir, AppPaths.SAVE_METADATA_FILE);
+            final File metadata = new File(duplicateIslandDir, AppPaths.SAVE_METADATA_FILE_NAME);
             writeMetadataFile(metadata, duplicateIslandMetadata);
             extractIslands();
         } catch (final IOException e) {

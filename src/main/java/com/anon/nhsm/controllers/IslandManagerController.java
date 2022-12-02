@@ -38,7 +38,7 @@ public class IslandManagerController {
 
     public void refreshIslandTables() {
         saves.setItems(FXCollections.observableArrayList(saveManager.getIslandsMetadata()));
-        emulatorLocalSave.setItems(FXCollections.observableArrayList(saveManager.getEmulatorSaveMetadata()));
+        emulatorLocalSave.setItems(FXCollections.observableArrayList(saveManager.getEmulatorSaveData()));
     }
 
     public void init(final SaveManager saveManager) {
