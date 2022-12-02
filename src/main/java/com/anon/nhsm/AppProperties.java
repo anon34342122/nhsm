@@ -1,6 +1,5 @@
 package com.anon.nhsm;
 
-import com.anon.nhsm.app.Application;
 import com.anon.nhsm.data.EmulatorType;
 import com.anon.nhsm.data.AppPaths;
 import com.google.gson.Gson;
@@ -95,10 +94,10 @@ public record AppProperties(File islandsDirectory, File nhsExecutable, File ryuj
 
                 final AppProperties validated = validationBuilder.build();
                 if (!validated.equals(properties)) {
-                    return Application.writeAppProperties(validated);
+                    return Main.writeAppProperties(validated);
                 }
             } else { // Write empty properties file
-                return Application.writeAppProperties(DEFAULT_PROPERTIES);
+                return Main.writeAppProperties(DEFAULT_PROPERTIES);
             }
 
             return properties;

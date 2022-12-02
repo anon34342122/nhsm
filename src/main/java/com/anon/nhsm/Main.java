@@ -18,6 +18,7 @@ public class Main {
     public static GsonBuilder GSON = new GsonBuilder()
             .registerTypeAdapter(File.class, new FileToAbsolutePathAdapter())
             .setPrettyPrinting();
+    public static SaveManager SAVE_MANAGER;
     static Logger LOGGER;
 
     public static void main(final String[] args) {
@@ -25,17 +26,21 @@ public class Main {
         LOGGER.info("Starting application");
 
         IOException setupExceptionThrown = null;
-        SaveManager saveManager = null;
 
         try {
             AppPaths.bootStrap();
             final SaveManager.Config saveManagerConfig = new SaveManager.Config(AppPaths.createYuzuSaveDirectory());
-            saveManager = new SaveManager(AppProperties.IO.loadAndValidateAppProperties(), saveManagerConfig);
-            saveManager.setup();
+            SAVE_MANAGER = new SaveManager(AppProperties.IO.loadAndValidateAppProperties(), saveManagerConfig);
+            SAVE_MANAGER.setup();
         } catch (final IOException e) {
             setupExceptionThrown = e;
         }
 
-        new Application(setupExceptionThrown, saveManager);
+        new Application(setupExceptionThrown);
+    }
+
+    public static AppProperties writeAppProperties(final AppProperties properties) throws IOException {
+        AppProperties.IO.writeAppPropertiesFile(AppPaths.APP_PROPERTIES_FILE, properties);
+        return properties;
     }
 }

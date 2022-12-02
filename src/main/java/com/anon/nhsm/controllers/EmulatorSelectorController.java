@@ -1,7 +1,9 @@
 package com.anon.nhsm.controllers;
 
 import com.anon.nhsm.AppProperties;
+import com.anon.nhsm.Stages;
 import com.anon.nhsm.app.Application;
+import com.anon.nhsm.app.JavaFXHelper;
 import com.anon.nhsm.data.SaveManager;
 import com.anon.nhsm.data.AppPaths;
 import javafx.fxml.FXML;
@@ -107,9 +109,9 @@ public class EmulatorSelectorController {
     @FXML
     void handleOpenSaveManager(final MouseEvent event) {
         try {
-            Application.showApplication(Application.PRIMARY_STAGE);
+            Stages.showIslandManager();
         } catch (final IOException e) {
-            Application.openErrorAlert(e);
+            JavaFXHelper.openErrorAlert(e);
         }
     }
 
@@ -118,7 +120,7 @@ public class EmulatorSelectorController {
         try {
             promptSelectRyujinxSaveDirectory(Application.PRIMARY_STAGE);
         } catch (final IOException e) {
-            Application.openErrorAlert(e);
+            JavaFXHelper.openErrorAlert(e);
         }
     }
 
@@ -136,6 +138,10 @@ public class EmulatorSelectorController {
         final DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setInitialDirectory(tryGetRyujinxSavesDirectory());
         final File selectedDirectory = directoryChooser.showDialog(primaryStage);
+
+        if (selectedDirectory == null) {
+            return;
+        }
 
         if (!selectedDirectory.getName().equals("0")) {
             final Alert alert = new Alert(Alert.AlertType.ERROR);

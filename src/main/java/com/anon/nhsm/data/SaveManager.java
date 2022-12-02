@@ -53,7 +53,7 @@ public class SaveManager {
     }
 
     public void setAndWriteAppProperties(final AppProperties properties) throws IOException {
-        this.properties = Application.writeAppProperties(properties);
+        this.properties = Main.writeAppProperties(properties);
     }
 
     public SaveData getEmulatorSaveMetadata() {

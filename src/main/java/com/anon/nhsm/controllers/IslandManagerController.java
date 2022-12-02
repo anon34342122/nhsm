@@ -1,6 +1,8 @@
 package com.anon.nhsm.controllers;
 
+import com.anon.nhsm.Stages;
 import com.anon.nhsm.app.Application;
+import com.anon.nhsm.app.JavaFXHelper;
 import com.anon.nhsm.data.SaveData;
 import com.anon.nhsm.data.SaveManager;
 import javafx.beans.property.SimpleStringProperty;
@@ -85,7 +87,7 @@ public class IslandManagerController {
                 }
             }
         } catch (final IOException e) {
-            Application.openErrorAlert(e);
+            JavaFXHelper.openErrorAlert(e);
         }
     }
 
@@ -112,7 +114,7 @@ public class IslandManagerController {
                 saveManager.swapWithLocalSave(saveData);
                 refreshIslandTables();
             } catch (final IOException e) {
-                Application.openErrorAlert(e);
+                JavaFXHelper.openErrorAlert(e);
             }
         }
     }
@@ -136,7 +138,7 @@ public class IslandManagerController {
                 saveManager.deleteIsland(saveData);
                 refreshIslandTables();
             } catch (final IOException e) {
-                Application.openErrorAlert(e);
+                JavaFXHelper.openErrorAlert(e);
             }
         }
     }
@@ -151,7 +153,7 @@ public class IslandManagerController {
             saveManager.duplicateIsland(saveData);
             refreshIslandTables();
         } catch (final IOException e) {
-            Application.openErrorAlert(e);
+            JavaFXHelper.openErrorAlert(e);
         }
     }
 
@@ -168,7 +170,7 @@ public class IslandManagerController {
                 refreshIslandTables();
             }
         } catch (final IOException e) {
-            Application.openErrorAlert(e);
+            JavaFXHelper.openErrorAlert(e);
         }
     }
 
@@ -185,7 +187,7 @@ public class IslandManagerController {
             try {
                 saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, saveManager.getConfig().emulatorSaveDirectory().toPath());
             } catch (final IOException e) {
-                Application.openErrorAlert(e);
+                JavaFXHelper.openErrorAlert(e);
             }
         }
     }
@@ -205,16 +207,16 @@ public class IslandManagerController {
         try {
             saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, Paths.get(saveData.folder()));
         } catch (final IOException e) {
-            Application.openErrorAlert(e);
+            JavaFXHelper.openErrorAlert(e);
         }
     }
 
     @FXML
     void changeEmulatorTarget(final ActionEvent event) {
         try {
-            Application.showEmulatorSelector(Application.PRIMARY_STAGE);
+            Stages.showEmulatorSelector();
         } catch (final IOException e) {
-            Application.openErrorAlert(e);
+            JavaFXHelper.openErrorAlert(e);
         }
     }
 }
