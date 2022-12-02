@@ -4,7 +4,7 @@ module com.anon.nhsm {
     requires com.google.gson;
     requires org.apache.commons.io;
     requires org.apache.logging.log4j;
-    requires org.apache.logging.log4j.core;
+    requires org.semver4j;
 
     exports com.anon.nhsm.app;
     opens com.anon.nhsm.app to javafx.fxml;

@@ -53,7 +53,7 @@ public class ApplicationController {
         refreshIslandTables();
 
         saves.setRowFactory(tv -> {
-            TableRow<SaveData> row = new TableRow<>();
+            final TableRow<SaveData> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SaveData saveData = row.getItem();
@@ -64,32 +64,32 @@ public class ApplicationController {
         });
     }
 
-    public void handleAddIsland(ActionEvent event) {
+    public void handleAddIsland(final ActionEvent event) {
         try {
             final FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(NewIslandController.class.getResource("new_island.fxml"));
-            DialogPane newIslandDialogPane = fxmlLoader.load();
+            final DialogPane newIslandDialogPane = fxmlLoader.load();
 
-            NewIslandController controller = fxmlLoader.getController();
+            final NewIslandController controller = fxmlLoader.getController();
 
-            Dialog<ButtonType> dialog = new Dialog<>();
+            final Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setDialogPane(newIslandDialogPane);
             dialog.setTitle("Add New Island");
             dialog.initOwner(Application.PRIMARY_STAGE);
 
-            Optional<ButtonType> clickedbutton = dialog.showAndWait();
+            final Optional<ButtonType> clickedbutton = dialog.showAndWait();
 
             if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
                 if (saveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription())) {
                     refreshIslandTables();
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Application.openErrorAlert(e);
         }
     }
 
-    public void handleSwapWithLocal(ActionEvent actionEvent) {
+    public void handleSwapWithLocal(final ActionEvent actionEvent) {
         final SaveData saveData = saves.getSelectionModel().getSelectedItem();
         if (saveData == null) {
             return;
@@ -98,8 +98,8 @@ public class ApplicationController {
         showSwapWithLocalPopup(saveData);
     }
 
-    private void showSwapWithLocalPopup(SaveData saveData) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    private void showSwapWithLocalPopup(final SaveData saveData) {
+        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Swap with Local");
         alert.setContentText("Do you want to swap this island with your Emulator Local Save?");
         alert.setHeaderText("Swapping '" + saveData.island() + "' island with Emulator Local Save");
@@ -111,19 +111,19 @@ public class ApplicationController {
             try {
                 saveManager.swapWithLocalSave(saveData);
                 refreshIslandTables();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Application.openErrorAlert(e);
             }
         }
     }
 
-    public void handleDeleteIsland(ActionEvent actionEvent) {
+    public void handleDeleteIsland(final ActionEvent actionEvent) {
         final SaveData saveData = saves.getSelectionModel().getSelectedItem();
         if (saveData == null) {
             return;
         }
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Island");
         alert.setContentText("WARNING: Are you ABSOLUTELY sure you want to delete this island? This is an IRREVERSIBLE action.");
         alert.setHeaderText("Deleting '" + saveData.island() + "' Island");
@@ -135,13 +135,13 @@ public class ApplicationController {
             try {
                 saveManager.deleteIsland(saveData);
                 refreshIslandTables();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Application.openErrorAlert(e);
             }
         }
     }
 
-    public void handleDuplicateIsland(ActionEvent actionEvent) {
+    public void handleDuplicateIsland(final ActionEvent actionEvent) {
         final SaveData saveData = saves.getSelectionModel().getSelectedItem();
         if (saveData == null) {
             return;
@@ -150,12 +150,12 @@ public class ApplicationController {
         try {
             saveManager.duplicateIsland(saveData);
             refreshIslandTables();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Application.openErrorAlert(e);
         }
     }
 
-    public void handleEdit(ActionEvent actionEvent) {
+    public void handleEdit(final ActionEvent actionEvent) {
         final SaveData oldSaveData = saves.getSelectionModel().getSelectedItem();
 
         if (oldSaveData == null) {
@@ -167,13 +167,13 @@ public class ApplicationController {
             if (newSaveData != oldSaveData) {
                 refreshIslandTables();
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Application.openErrorAlert(e);
         }
     }
 
-    public void handleLocalSaveEditor(ActionEvent actionEvent) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    public void handleLocalSaveEditor(final ActionEvent actionEvent) {
+        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Warning");
         alert.setContentText("Make sure your Emulator is not running the game FIRST before editing this save data.");
         alert.setHeaderText("WARNING: Make sure the game is not open");
@@ -184,16 +184,16 @@ public class ApplicationController {
         if (type.isPresent() && type.get() == ButtonType.OK) {
             try {
                 saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, saveManager.getConfig().emulatorSaveDirectory().toPath());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Application.openErrorAlert(e);
             }
         }
     }
 
-    public void handleSaveEditor(ActionEvent actionEvent) {
+    public void handleSaveEditor(final ActionEvent actionEvent) {
         final SaveData saveData = saves.getSelectionModel().getSelectedItem();
         if (saveData == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
+            final Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Warning");
             alert.setContentText("Please select an Island to use the Save Editor with.");
             alert.setHeaderText("Select an Island");
@@ -204,16 +204,16 @@ public class ApplicationController {
 
         try {
             saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, Paths.get(saveData.folder()));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Application.openErrorAlert(e);
         }
     }
 
     @FXML
-    void changeEmulatorTarget(ActionEvent event) {
+    void changeEmulatorTarget(final ActionEvent event) {
         try {
             Application.showEmulatorSelector(Application.PRIMARY_STAGE);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Application.openErrorAlert(e);
         }
     }

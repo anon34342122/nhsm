@@ -21,8 +21,4 @@ public class EmulatorLocalSaveController {
     public String getIslandDescription() {
         return description.getText();
     }
-
-    public void initialize() {
-
-    }
 }

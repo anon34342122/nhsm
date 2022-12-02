@@ -29,8 +29,4 @@ public class EditIslandController {
     public void setIslandDescription(final String islandDescription) {
         this.description.setText(islandDescription);
     }
-
-    public void initialize() {
-
-    }
 }

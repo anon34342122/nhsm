@@ -6,7 +6,9 @@ import java.io.File;
 
 public class Utils {
     public static final String YUZU_GAME_ID = "01006F8002326000";
-    public static final String YUZU_SAVE_DIRECTORY = "\\yuzu\\nand\\user\\save\\0000000000000000\\00000000000000000000000000000000\\" + YUZU_GAME_ID;
+    public static final String YUZU_AC_SAVE_PATH = "\\yuzu\\nand\\user\\save\\0000000000000000\\00000000000000000000000000000000\\" + YUZU_GAME_ID;
+
+    public static final String RYUJINX_SAVES_PATH = "Ryujinx\\bis\\user\\save";
     public static final String SAVE_METADATA_FILE = "metadata.json";
 
     public static final String MAIN_DAT = "main.dat";
@@ -15,8 +17,12 @@ public class Utils {
     public static final File APP_PROPERTIES_FILE = new File(Application.APPLICATION_DIRECTORY, "nhsm_properties.json");
     public static final String ISLANDS_DIRECTORY_NAME = "islands";
 
+    public static File createRyujinxSavesDirectory() {
+        return new File(Application.USER_HOME, Utils.RYUJINX_SAVES_PATH);
+    }
+
     public static File createYuzuSaveDirectory() {
-        return new File(Application.USER_HOME, Utils.YUZU_SAVE_DIRECTORY);
+        return new File(Application.USER_HOME, Utils.YUZU_AC_SAVE_PATH);
     }
 
     public static File createIslandsDirectory() {
