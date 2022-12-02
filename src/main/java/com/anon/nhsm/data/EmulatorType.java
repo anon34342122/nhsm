@@ -6,19 +6,12 @@ import java.io.File;
 import java.util.function.Function;
 
 public enum EmulatorType {
-    RYUJINX("ryujinx", AppProperties::ryujinxSaveDirectory),
-    YUZU("yuzu", AppProperties::yuzuSaveDirectory);
-
-    private final String name;
+    RYUJINX(AppProperties::ryujinxSaveDirectory),
+    YUZU(AppProperties::yuzuSaveDirectory);
     private final Function<AppProperties, File> saveDirectoryFunction;
 
-    EmulatorType(final String name, final Function<AppProperties, File> saveDirectoryFunction) {
-        this.name = name;
+    EmulatorType(final Function<AppProperties, File> saveDirectoryFunction) {
         this.saveDirectoryFunction = saveDirectoryFunction;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public File getSaveDirectory(final AppProperties appProperties) {
