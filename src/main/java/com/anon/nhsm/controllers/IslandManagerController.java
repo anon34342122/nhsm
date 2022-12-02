@@ -3,7 +3,7 @@ package com.anon.nhsm.controllers;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.app.Application;
 import com.anon.nhsm.app.JavaFXHelper;
-import com.anon.nhsm.data.SaveData;
+import com.anon.nhsm.data.SaveMetadata;
 import com.anon.nhsm.data.SaveManager;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -21,16 +21,16 @@ import java.util.Optional;
 public class IslandManagerController {
     private SaveManager saveManager;
     @FXML private AnchorPane ap;
-    @FXML private TableColumn<SaveData, String> island;
-    @FXML private TableColumn<SaveData, String> folder;
-    @FXML private TableColumn<SaveData, String> description;
-    @FXML private TableColumn<SaveData, String> date;
-    @FXML private TableColumn<SaveData, String> localIsland;
-    @FXML private TableColumn<SaveData, String> localFolder;
-    @FXML private TableColumn<SaveData, String> localDescription;
-    @FXML private TableColumn<SaveData, String> localDate;
-    @FXML private TableView<SaveData> saves;
-    @FXML private TableView<SaveData> emulatorLocalSave;
+    @FXML private TableColumn<SaveMetadata, String> island;
+    @FXML private TableColumn<SaveMetadata, String> folder;
+    @FXML private TableColumn<SaveMetadata, String> description;
+    @FXML private TableColumn<SaveMetadata, String> date;
+    @FXML private TableColumn<SaveMetadata, String> localIsland;
+    @FXML private TableColumn<SaveMetadata, String> localFolder;
+    @FXML private TableColumn<SaveMetadata, String> localDescription;
+    @FXML private TableColumn<SaveMetadata, String> localDate;
+    @FXML private TableView<SaveMetadata> saves;
+    @FXML private TableView<SaveMetadata> emulatorLocalSave;
 
     public AnchorPane getAnchorPane() {
         return ap;
@@ -55,11 +55,11 @@ public class IslandManagerController {
         refreshIslandTables();
 
         saves.setRowFactory(tv -> {
-            final TableRow<SaveData> row = new TableRow<>();
+            final TableRow<SaveMetadata> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    final SaveData saveData = row.getItem();
-                    showSwapWithLocalPopup(saveData);
+                    final SaveMetadata saveMetadata = row.getItem();
+                    showSwapWithLocalPopup(saveMetadata);
                 }
             });
             return row ;
@@ -92,26 +92,26 @@ public class IslandManagerController {
     }
 
     public void handleSwapWithLocal(final ActionEvent actionEvent) {
-        final SaveData saveData = saves.getSelectionModel().getSelectedItem();
-        if (saveData == null) {
+        final SaveMetadata saveMetadata = saves.getSelectionModel().getSelectedItem();
+        if (saveMetadata == null) {
             return;
         }
 
-        showSwapWithLocalPopup(saveData);
+        showSwapWithLocalPopup(saveMetadata);
     }
 
-    private void showSwapWithLocalPopup(final SaveData saveData) {
+    private void showSwapWithLocalPopup(final SaveMetadata saveMetadata) {
         final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Swap with Local");
         alert.setContentText("Do you want to swap this island with your Emulator Local Save?");
-        alert.setHeaderText("Swapping '" + saveData.island() + "' island with Emulator Local Save");
+        alert.setHeaderText("Swapping '" + saveMetadata.island() + "' island with Emulator Local Save");
         alert.setGraphic(new ImageView(Application.class.getResource("yuzu.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
         if (type.isPresent() && type.get() == ButtonType.OK) {
             try {
-                saveManager.swapWithLocalSave(saveData);
+                saveManager.swapWithLocalSave(saveMetadata);
                 refreshIslandTables();
             } catch (final IOException e) {
                 JavaFXHelper.openErrorAlert(e);
@@ -120,22 +120,22 @@ public class IslandManagerController {
     }
 
     public void handleDeleteIsland(final ActionEvent actionEvent) {
-        final SaveData saveData = saves.getSelectionModel().getSelectedItem();
-        if (saveData == null) {
+        final SaveMetadata saveMetadata = saves.getSelectionModel().getSelectedItem();
+        if (saveMetadata == null) {
             return;
         }
 
         final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Island");
         alert.setContentText("WARNING: Are you ABSOLUTELY sure you want to delete this island? This is an IRREVERSIBLE action.");
-        alert.setHeaderText("Deleting '" + saveData.island() + "' Island");
+        alert.setHeaderText("Deleting '" + saveMetadata.island() + "' Island");
         alert.setGraphic(new ImageView(Application.class.getResource("delete.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
         if (type.isPresent() && type.get() == ButtonType.OK) {
             try {
-                saveManager.deleteIsland(saveData);
+                saveManager.deleteIsland(saveMetadata);
                 refreshIslandTables();
             } catch (final IOException e) {
                 JavaFXHelper.openErrorAlert(e);
@@ -144,13 +144,13 @@ public class IslandManagerController {
     }
 
     public void handleDuplicateIsland(final ActionEvent actionEvent) {
-        final SaveData saveData = saves.getSelectionModel().getSelectedItem();
-        if (saveData == null) {
+        final SaveMetadata saveMetadata = saves.getSelectionModel().getSelectedItem();
+        if (saveMetadata == null) {
             return;
         }
 
         try {
-            saveManager.duplicateIsland(saveData);
+            saveManager.duplicateIsland(saveMetadata);
             refreshIslandTables();
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
@@ -158,15 +158,15 @@ public class IslandManagerController {
     }
 
     public void handleEdit(final ActionEvent actionEvent) {
-        final SaveData oldSaveData = saves.getSelectionModel().getSelectedItem();
+        final SaveMetadata oldSaveMetadata = saves.getSelectionModel().getSelectedItem();
 
-        if (oldSaveData == null) {
+        if (oldSaveMetadata == null) {
             return;
         }
 
         try {
-            final SaveData newSaveData = saveManager.editIslandDetails(oldSaveData);
-            if (newSaveData != oldSaveData) {
+            final SaveMetadata newSaveMetadata = saveManager.editIslandDetails(oldSaveMetadata);
+            if (newSaveMetadata != oldSaveMetadata) {
                 refreshIslandTables();
             }
         } catch (final IOException e) {
@@ -193,8 +193,8 @@ public class IslandManagerController {
     }
 
     public void handleSaveEditor(final ActionEvent actionEvent) {
-        final SaveData saveData = saves.getSelectionModel().getSelectedItem();
-        if (saveData == null) {
+        final SaveMetadata saveMetadata = saves.getSelectionModel().getSelectedItem();
+        if (saveMetadata == null) {
             final Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Warning");
             alert.setContentText("Please select an Island to use the Save Editor with.");
@@ -205,7 +205,7 @@ public class IslandManagerController {
         }
 
         try {
-            saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, Paths.get(saveData.folder()));
+            saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, Paths.get(saveMetadata.folder()));
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
         }
