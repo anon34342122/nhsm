@@ -31,6 +31,9 @@ public class IslandManagerController {
     @FXML private TableColumn<SaveMetadata, String> localDate;
     @FXML private TableView<SaveMetadata> saves;
     @FXML private TableView<SaveMetadata> emulatorLocalSave;
+    @FXML private ImageView yuzuLogo;
+    @FXML private ImageView ryujinxLogo;
+    private EmulatorType targetEmulator;
 
     public AnchorPane getAnchorPane() {
         return ap;
@@ -63,6 +66,10 @@ public class IslandManagerController {
             });
             return row ;
         });
+
+        targetEmulator = saveManager.getAppProperties().emulatorTarget();
+        yuzuLogo.setVisible(targetEmulator == EmulatorType.YUZU);
+        ryujinxLogo.setVisible(targetEmulator == EmulatorType.RYUJINX);
     }
 
     public void handleAddIsland(final ActionEvent event) {
@@ -111,7 +118,12 @@ public class IslandManagerController {
                 ButtonType.CANCEL);
         alert.setTitle("Swap with Local");
         alert.setHeaderText("Swapping '" + saveMetadata.island() + "' island with Emulator Local Save");
-        alert.setGraphic(new ImageView(Application.class.getResource("yuzu.png").toString()));
+        final ImageView emulatorLogo = targetEmulator == EmulatorType.YUZU ? yuzuLogo : ryujinxLogo;
+        final ImageView graphic = new ImageView(emulatorLogo.getImage());
+        graphic.setFitWidth(45);
+        graphic.setFitHeight(45);
+
+        alert.setGraphic(graphic);
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
