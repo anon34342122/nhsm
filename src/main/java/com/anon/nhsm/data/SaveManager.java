@@ -371,12 +371,15 @@ public class SaveManager {
         if (type.isPresent() && type.get() == ButtonType.OK) {
             final DirectoryChooser directoryChooser = new DirectoryChooser();
             final File selectedDirectory = directoryChooser.showDialog(primaryStage);
-            final File executable = new File(selectedDirectory, AppPaths.NHSE_EXECUTABLE);
 
-            if (executable.exists()) {
-                setAndWriteAppProperties(this.appProperties.copy().nhsExecutable(executable).build());
-                return true;
-            } else {
+            if (selectedDirectory != null) {
+                final File executable = new File(selectedDirectory, AppPaths.NHSE_EXECUTABLE);
+
+                if (executable.exists()) {
+                    setAndWriteAppProperties(this.appProperties.copy().nhsExecutable(executable).build());
+                    return true;
+                }
+
                 final Alert exeMissing = new Alert(Alert.AlertType.WARNING);
                 exeMissing.setTitle("Warning");
                 exeMissing.setContentText("The selected directory does not contain an NHSE executable with the following name: " + AppPaths.NHSE_EXECUTABLE);
