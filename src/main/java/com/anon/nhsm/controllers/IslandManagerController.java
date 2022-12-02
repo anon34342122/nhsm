@@ -43,7 +43,7 @@ public class IslandManagerController {
 
     public void init(final SaveManager saveManager) {
         this.saveManager = saveManager;
-        island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island()));
+        island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + (p.getValue().emulatorLocked() ? " (LOCKED)" : "")));
         folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().folder()));
         description.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
         date.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
@@ -58,8 +58,7 @@ public class IslandManagerController {
             final TableRow<SaveMetadata> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    final SaveMetadata saveMetadata = row.getItem();
-                    showSwapWithLocalPopup(saveMetadata);
+                    swapWithLocal(row.getItem());
                 }
             });
             return row ;
@@ -93,23 +92,30 @@ public class IslandManagerController {
 
     public void handleSwapWithLocal(final ActionEvent actionEvent) {
         final SaveMetadata saveMetadata = saves.getSelectionModel().getSelectedItem();
+        swapWithLocal(saveMetadata);
+    }
+
+    private void swapWithLocal(final SaveMetadata saveMetadata) {
         if (saveMetadata == null) {
             return;
         }
 
-        showSwapWithLocalPopup(saveMetadata);
-    }
+        if (saveMetadata.emulatorLocked()) {
+            showIslandLockedWarning();
+            return;
+        }
 
-    private void showSwapWithLocalPopup(final SaveMetadata saveMetadata) {
-        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        final Alert alert = new Alert(Alert.AlertType.WARNING,
+                "Do you want to swap this island with your Emulator Local Save?",
+                ButtonType.YES,
+                ButtonType.CANCEL);
         alert.setTitle("Swap with Local");
-        alert.setContentText("Do you want to swap this island with your Emulator Local Save?");
         alert.setHeaderText("Swapping '" + saveMetadata.island() + "' island with Emulator Local Save");
         alert.setGraphic(new ImageView(Application.class.getResource("yuzu.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
-        if (type.isPresent() && type.get() == ButtonType.OK) {
+        if (type.isPresent() && type.get() == ButtonType.YES) {
             try {
                 saveManager.swapWithLocalSave(saveMetadata);
                 refreshIslandTables();
@@ -119,21 +125,37 @@ public class IslandManagerController {
         }
     }
 
+    private void showIslandLockedWarning() {
+        final Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setContentText("This island cannot be swapped, deleted, edited or duplicated since it is being used currently by a different target emulator." +
+                " Switch to the other emulator it's using by clicking 'Settings -> Change Emulator Target' to make any changes to this island.");
+        alert.setHeaderText("WARNING: Island in use by another emulator");
+        alert.initOwner(Application.PRIMARY_STAGE);
+        alert.showAndWait();
+    }
+
     public void handleDeleteIsland(final ActionEvent actionEvent) {
         final SaveMetadata saveMetadata = saves.getSelectionModel().getSelectedItem();
         if (saveMetadata == null) {
             return;
         }
 
-        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        if (saveMetadata.emulatorLocked()) {
+            showIslandLockedWarning();
+            return;
+        }
+
+        final Alert alert = new Alert(Alert.AlertType.WARNING,
+                "WARNING: Are you ABSOLUTELY sure you want to delete this island? This is an IRREVERSIBLE action.",
+                ButtonType.YES,
+                ButtonType.CANCEL);
         alert.setTitle("Delete Island");
-        alert.setContentText("WARNING: Are you ABSOLUTELY sure you want to delete this island? This is an IRREVERSIBLE action.");
         alert.setHeaderText("Deleting '" + saveMetadata.island() + "' Island");
-        alert.setGraphic(new ImageView(Application.class.getResource("delete.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
-        if (type.isPresent() && type.get() == ButtonType.OK) {
+        if (type.isPresent() && type.get() == ButtonType.YES) {
             try {
                 saveManager.deleteIsland(saveMetadata);
                 refreshIslandTables();
@@ -146,6 +168,11 @@ public class IslandManagerController {
     public void handleDuplicateIsland(final ActionEvent actionEvent) {
         final SaveMetadata saveMetadata = saves.getSelectionModel().getSelectedItem();
         if (saveMetadata == null) {
+            return;
+        }
+
+        if (saveMetadata.emulatorLocked()) {
+            showIslandLockedWarning();
             return;
         }
 
@@ -164,6 +191,11 @@ public class IslandManagerController {
             return;
         }
 
+        if (oldSaveMetadata.emulatorLocked()) {
+            showIslandLockedWarning();
+            return;
+        }
+
         try {
             final SaveMetadata newSaveMetadata = saveManager.editIslandDetails(oldSaveMetadata);
             if (newSaveMetadata != oldSaveMetadata) {
@@ -175,11 +207,10 @@ public class IslandManagerController {
     }
 
     public void handleLocalSaveEditor(final ActionEvent actionEvent) {
-        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        final Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Warning");
         alert.setContentText("Make sure your Emulator is not running the game FIRST before editing this save data.");
         alert.setHeaderText("WARNING: Make sure the game is not open");
-        alert.setGraphic(new ImageView(Application.class.getResource("delete.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
@@ -201,6 +232,11 @@ public class IslandManagerController {
             alert.setHeaderText("Select an Island");
             alert.initOwner(Application.PRIMARY_STAGE);
             alert.showAndWait();
+            return;
+        }
+
+        if (saveMetadata.emulatorLocked()) {
+            showIslandLockedWarning();
             return;
         }
 
