@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class IslandManagerController {
+    public static final String LOCKED_SUFFIX = " (LOCKED)";
     private SaveManager saveManager;
     @FXML private AnchorPane ap;
     @FXML private TableColumn<SaveMetadata, String> island;
@@ -44,9 +45,13 @@ public class IslandManagerController {
         emulatorLocalSave.setItems(FXCollections.observableArrayList(saveManager.getEmulatorSaveData()));
     }
 
+    private String tryGetLockedSuffix(final SaveMetadata island) {
+        return island.emulatorLocked() ? LOCKED_SUFFIX : "";
+    }
+
     public void init(final SaveManager saveManager) {
         this.saveManager = saveManager;
-        island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + (p.getValue().emulatorLocked() ? " (LOCKED)" : "")));
+        island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + tryGetLockedSuffix(p.getValue())));
         folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().nhsmIslandDirectory(saveManager.getAppProperties()).getAbsolutePath()));
         description.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
         date.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
