@@ -1,11 +1,12 @@
 package com.anon.nhsm.controllers;
 
 import com.anon.nhsm.AppProperties;
+import com.anon.nhsm.Main;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.app.Application;
 import com.anon.nhsm.app.JavaFXHelper;
-import com.anon.nhsm.data.SaveManager;
 import com.anon.nhsm.data.AppPaths;
+import com.anon.nhsm.data.EmulatorType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 public class EmulatorSelectorController {
-    private SaveManager saveManager;
+    private AppProperties appProperties;
 
     @FXML private AnchorPane ap;
     @FXML private VBox contentAreaNoSelection;
@@ -40,13 +41,22 @@ public class EmulatorSelectorController {
 
     private List<Pane> contentAreas;
     private Map<HBox, EmulatorContentArea> menuToEmulatorData;
+    private EmulatorContentArea selectedEmulator;
 
     public static class EmulatorContentArea {
+        private final EmulatorType emulatorType;
         private final Pane contentArea;
         private BooleanSupplier viable = () -> false;
 
-        public EmulatorContentArea(final Pane contentArea) {
+        private Runnable onSelected = () -> {};
+
+        public EmulatorContentArea(final EmulatorType emulatorType, final Pane contentArea) {
+            this.emulatorType = emulatorType;
             this.contentArea = contentArea;
+        }
+
+        public EmulatorType getEmulatorType() {
+            return emulatorType;
         }
 
         public Pane getContentArea() {
@@ -61,31 +71,48 @@ public class EmulatorSelectorController {
             this.viable = viable;
             return this;
         }
+
+        public EmulatorContentArea onSelected(final Runnable onSelected) {
+            this.onSelected = onSelected;
+            return this;
+        }
     }
 
     public AnchorPane getAnchorPane() {
         return ap;
     }
 
-    public void init(final SaveManager saveManager) {
-        this.saveManager = saveManager;
+    public void init(final AppProperties appProperties) {
+        this.appProperties = appProperties;
         contentAreas = List.of(contentAreaNoSelection, contentAreaRyujinx, contentAreaYuzu);
         menuToEmulatorData = new IdentityHashMap<>();
 
-        menuToEmulatorData.put(sideMenuRyujinx, new EmulatorContentArea(contentAreaRyujinx).setViable(() -> saveManager.getProperties().ryujinxSaveDirectory() != null));
-        menuToEmulatorData.put(sideMenuYuzu, new EmulatorContentArea(contentAreaYuzu).setViable(() -> true));
-        if (saveManager.getProperties().ryujinxSaveDirectory() != null) {
-            currentSaveDirectoryText.setText(saveManager.getProperties().ryujinxSaveDirectory().getAbsolutePath());
+        menuToEmulatorData.put(sideMenuRyujinx, new EmulatorContentArea(EmulatorType.RYUJINX, contentAreaRyujinx).setViable(() -> this.appProperties.ryujinxSaveDirectory() != null));
+        menuToEmulatorData.put(sideMenuYuzu, new EmulatorContentArea(EmulatorType.YUZU, contentAreaYuzu).setViable(() -> true).onSelected(() -> {
+            try {
+                updateYuzuSaveDirectory(AppPaths.createYuzuSaveDirectory());
+            } catch (final IOException e) {
+                JavaFXHelper.openErrorAlert(e);
+            }
+        }));
+        if (appProperties.ryujinxSaveDirectory() != null) {
+            currentSaveDirectoryText.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath());
         }
     }
 
+    private void updateYuzuSaveDirectory(final File directory) throws IOException {
+        appProperties = Main.writeAppProperties(appProperties.copy().yuzuSaveDirectory(directory).build());
+        //currentSaveDirectoryText.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath()); TODO: Have text for yuzu emulator content area
+    }
+
     private void updateRyujinxSaveDirectory(final File directory) throws IOException {
-        final AppProperties properties = saveManager.getProperties().copy().ryujinxSaveDirectory(directory).build();
-        saveManager.setAndWriteAppProperties(properties);
-        currentSaveDirectoryText.setText(saveManager.getProperties().ryujinxSaveDirectory().getAbsolutePath());
+        appProperties = Main.writeAppProperties(appProperties.copy().ryujinxSaveDirectory(directory).build());
+        currentSaveDirectoryText.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath());
+        buttonOpenSavesManager.setDisable(!selectedEmulator.isViable());
     }
 
     public void selectEmulator(final EmulatorContentArea emulator) {
+        selectedEmulator = emulator;
         contentAreas.forEach(area -> {
             area.setVisible(false);
             area.setDisable(true);
@@ -95,7 +122,8 @@ public class EmulatorSelectorController {
         contentArea.setDisable(false);
         contentArea.setVisible(true);
 
-        buttonOpenSavesManager.setDisable(!emulator.isViable());
+        buttonOpenSavesManager.setDisable(!selectedEmulator.isViable());
+        selectedEmulator.onSelected.run();
     }
 
     @FXML
@@ -109,7 +137,8 @@ public class EmulatorSelectorController {
     @FXML
     void handleOpenSaveManager(final MouseEvent event) {
         try {
-            Stages.showIslandManager();
+            appProperties = Main.writeAppProperties(appProperties.copy().emulatorTarget(selectedEmulator.getEmulatorType()).build());
+            Stages.showIslandManager(appProperties);
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
         }

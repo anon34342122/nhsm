@@ -214,7 +214,7 @@ public class IslandManagerController {
     @FXML
     void changeEmulatorTarget(final ActionEvent event) {
         try {
-            Stages.showEmulatorSelector();
+            Stages.showEmulatorSelector(saveManager.getAppProperties());
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
         }

@@ -48,7 +48,7 @@ public class SaveManager {
         this.config = config;
     }
 
-    public AppProperties getProperties() {
+    public AppProperties getAppProperties() {
         return properties;
     }
 
