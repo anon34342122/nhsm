@@ -1,13 +1,20 @@
 package com.anon.nhsm.data;
 
+import com.anon.nhsm.AppProperties;
+
+import java.io.File;
 import java.util.Date;
 
-public record SaveMetadata(String island, String folder, String description, Date date, boolean emulatorLocked) {
+public record SaveMetadata(String island, String description, Date date, boolean emulatorLocked) {
+    public File nhsmIslandDirectory(final AppProperties appProperties) {
+        return new File(appProperties.islandsDirectory(), island());
+    }
+
     public SaveMetadata date(final Date date) {
-        return new SaveMetadata(island, folder, description, date, emulatorLocked);
+        return new SaveMetadata(island, description, date, emulatorLocked);
     }
 
     public SaveMetadata lock(final boolean lock) {
-        return new SaveMetadata(island, folder, description, date, lock);
+        return new SaveMetadata(island, description, date, lock);
     }
 }

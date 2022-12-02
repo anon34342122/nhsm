@@ -3,6 +3,7 @@ package com.anon.nhsm.controllers;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.app.Application;
 import com.anon.nhsm.app.JavaFXHelper;
+import com.anon.nhsm.data.EmulatorType;
 import com.anon.nhsm.data.SaveMetadata;
 import com.anon.nhsm.data.SaveManager;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,7 +16,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 public class IslandManagerController {
@@ -47,11 +47,11 @@ public class IslandManagerController {
     public void init(final SaveManager saveManager) {
         this.saveManager = saveManager;
         island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + (p.getValue().emulatorLocked() ? " (LOCKED)" : "")));
-        folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().folder()));
+        folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().nhsmIslandDirectory(saveManager.getAppProperties()).getAbsolutePath()));
         description.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
         date.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
         localIsland.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island()));
-        localFolder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().folder()));
+        localFolder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().nhsmIslandDirectory(saveManager.getAppProperties()).getAbsolutePath()));
         localDescription.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
         localDate.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
 
@@ -253,7 +253,7 @@ public class IslandManagerController {
         }
 
         try {
-            saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, Paths.get(saveMetadata.folder()));
+            saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, saveMetadata.nhsmIslandDirectory(saveManager.getAppProperties()).toPath());
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
         }
