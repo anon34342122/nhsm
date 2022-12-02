@@ -45,13 +45,13 @@ public class IslandManagerController {
         emulatorLocalSave.setItems(FXCollections.observableArrayList(saveManager.getEmulatorSaveData()));
     }
 
-    private String tryGetLockedSuffix(final SaveMetadata island) {
+    private String getIslandSuffix(final SaveMetadata island) {
         return island.emulatorLocked() ? LOCKED_SUFFIX : "";
     }
 
     public void init(final SaveManager saveManager) {
         this.saveManager = saveManager;
-        island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + tryGetLockedSuffix(p.getValue())));
+        island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + getIslandSuffix(p.getValue())));
         folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().nhsmIslandDirectory(saveManager.getAppProperties()).getAbsolutePath()));
         description.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
         date.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
