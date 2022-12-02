@@ -36,8 +36,8 @@ public class EmulatorSelectorController {
     @FXML private HBox sideMenuRyujinx;
     @FXML private HBox sideMenuYuzu;
     @FXML private Button buttonOpenSavesManager;
-    @FXML private Button buttonLocateSaveDirectory;
-    @FXML private Text currentSaveDirectoryText;
+    @FXML private Text currentSaveDirectoryTextRyujinx;
+    @FXML private Text currentSaveDirectoryTextYuzu;
 
     private List<Pane> contentAreas;
     private Map<HBox, EmulatorContentArea> menuToEmulatorData;
@@ -87,27 +87,39 @@ public class EmulatorSelectorController {
         contentAreas = List.of(contentAreaNoSelection, contentAreaRyujinx, contentAreaYuzu);
         menuToEmulatorData = new IdentityHashMap<>();
 
-        menuToEmulatorData.put(sideMenuRyujinx, new EmulatorContentArea(EmulatorType.RYUJINX, contentAreaRyujinx).setViable(() -> this.appProperties.ryujinxSaveDirectory() != null));
-        menuToEmulatorData.put(sideMenuYuzu, new EmulatorContentArea(EmulatorType.YUZU, contentAreaYuzu).setViable(() -> true).onSelected(() -> {
+        final EmulatorContentArea ryujinxEmulator = new EmulatorContentArea(EmulatorType.RYUJINX, contentAreaRyujinx).setViable(() -> this.appProperties.ryujinxSaveDirectory() != null);
+        final EmulatorContentArea yuzuEmulator = new EmulatorContentArea(EmulatorType.YUZU, contentAreaYuzu).setViable(() -> true).onSelected(() -> {
+            if (this.appProperties.yuzuSaveDirectory() != null) {
+                return;
+            }
+
             try {
                 updateYuzuSaveDirectory(AppPaths.createYuzuSaveDirectory());
             } catch (final IOException e) {
                 JavaFXHelper.openErrorAlert(e);
             }
-        }));
-        if (appProperties.ryujinxSaveDirectory() != null) {
-            currentSaveDirectoryText.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath());
+        });
+
+        if (appProperties.yuzuSaveDirectory() != null) {
+            currentSaveDirectoryTextYuzu.setText(appProperties.yuzuSaveDirectory().getAbsolutePath());
         }
+
+        if (appProperties.ryujinxSaveDirectory() != null) {
+            currentSaveDirectoryTextRyujinx.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath());
+        }
+
+        menuToEmulatorData.put(sideMenuRyujinx, ryujinxEmulator);
+        menuToEmulatorData.put(sideMenuYuzu,yuzuEmulator);
     }
 
     private void updateYuzuSaveDirectory(final File directory) throws IOException {
         appProperties = Main.writeAppProperties(appProperties.copy().yuzuSaveDirectory(directory).build());
-        //currentSaveDirectoryText.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath()); TODO: Have text for yuzu emulator content area
+        currentSaveDirectoryTextYuzu.setText(appProperties.yuzuSaveDirectory().getAbsolutePath());
     }
 
     private void updateRyujinxSaveDirectory(final File directory) throws IOException {
         appProperties = Main.writeAppProperties(appProperties.copy().ryujinxSaveDirectory(directory).build());
-        currentSaveDirectoryText.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath());
+        currentSaveDirectoryTextRyujinx.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath());
         buttonOpenSavesManager.setDisable(!selectedEmulator.isViable());
     }
 
