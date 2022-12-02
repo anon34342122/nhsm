@@ -7,6 +7,177 @@
     src: url('fonts/Roboto-Light.ttf');
 }
 
+.table-view {
+    -fx-focus-color: transparent; 
+    -fx-background-insets: -1.4, 0, 1, 2;
+}
+
+.table-view .column-header,
+.table-view .column-header-background .filler {
+    -fx-background-color:  #eeeeee;
+}
+.table-view .column-header .label{
+   -fx-text-fill: rgb(49, 49, 49);
+   -fx-font-weight: bold; 
+   -fx-alignment: CENTER_LEFT;
+}
+.table-view .cell{
+    -fx-cell-size: 35;
+    -fx-alignment: center-left;
+    -fx-background-color: #dfdfdf;
+    -fx-border-color: #dfdfdf;
+    -fx-text-fill: rgb(0, 0, 0);
+    -fx-alignment: CENTER_LEFT;
+}
+.table-row-cell:selected .table-cell {
+   -fx-background-color: #ACC0C9;
+   -fx-border-color: #ACC0C9;
+}
+
+.table-view .increment-button ,.table-view .decrement-button {
+    -fx-background-color:transparent;
+	-fx-background-radius: 2em;
+}
+
+.table-view .scroll-bar:horizontal .track,
+.table-view .scroll-bar:vertical .track{
+	-fx-background-color: transparent;
+	-fx-border-color:derive( #5d72a0,20%);
+
+	-fx-background-radius: 2em;
+	-fx-border-radius:2em;
+}
+
+.table-view .scroll-bar:horizontal .thumb,
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color:derive( #5d72a0,30%);
+	-fx-background-insets: 2, 0, 0;
+	-fx-background-radius: 2em;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color :transparent;
+    -fx-border-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-border-radius :2.0em;
+}
+
+.scroll-bar:horizontal .increment-button ,
+.scroll-bar:horizontal .decrement-button {
+    -fx-background-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-padding :0.0 0.0 10.0 0.0;
+
+}
+
+.scroll-bar:vertical .increment-button ,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-padding :0.0 10.0 0.0 0.0;
+
+}
+
+ .scroll-bar .increment-arrow,
+ .scroll-bar .decrement-arrow{
+    -fx-shape : " ";    
+    -fx-padding :0.15em 0.0;
+}
+
+ .scroll-bar:vertical .increment-arrow,
+ .scroll-bar:vertical .decrement-arrow{
+    -fx-shape : " ";    
+    -fx-padding :0.0 0.15em;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color :derive(black,90.0%);
+    -fx-background-insets : 2.0, 0.0, 0.0;
+    -fx-background-radius : 2.0em;
+}
+
+.scroll-bar:horizontal .thumb:hover,
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color :derive(#4D4C4F,10.0%);
+    -fx-background-insets : 2.0, 0.0, 0.0;
+    -fx-background-radius : 2.0em;
+}
+
+.text-area {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.text-area .content{
+    -fx-background-color: #eeeeee;
+}
+
+.button {
+    -fx-background-color: #5d72a0;
+    -fx-text-fill: rgb(255, 255, 255);
+    -fx-background-radius: 7;
+}
+
+.button:hover {
+    -fx-background-color: #8196c2;
+    -fx-background-radius: 7;
+}
+
+.button:pressed {
+    -fx-background-color: #5d72a0;
+    -fx-background-radius: 7;
+}
+
+.swapButton {
+    -fx-background-color: #739da3;
+    -fx-text-fill: rgb(255, 255, 255);
+    -fx-background-radius: 7;
+}
+
+.swapButton:hover {
+    -fx-background-color: #94bcc2;
+    -fx-background-radius: 7;
+}
+
+.swapButton:pressed {
+    -fx-background-color: #739da3;
+    -fx-background-radius: 7;
+}
+
+.newIslandButton {
+    -fx-background-color: #7b9e79;
+    -fx-text-fill: rgb(255, 255, 255);
+    -fx-background-radius: 7;
+}
+
+.newIslandButton:hover {
+    -fx-background-color: #98b897;
+    -fx-background-radius: 7;
+}
+
+.newIslandButton:pressed {
+    -fx-background-color: #7b9e79;
+    -fx-background-radius: 7;
+}
+
+.deleteButton {
+    -fx-background-color: #a05d5d;
+    -fx-text-fill: rgb(255, 255, 255);
+    -fx-background-radius: 7;
+}
+
+.deleteButton:hover {
+    -fx-background-color: #c28181;
+    -fx-background-radius: 7;
+}
+
+.deleteButton:pressed {
+    -fx-background-color: #a05d5d;
+    -fx-background-radius: 7;
+}
+
 .subtext {
     font-family: 'Roboto';
     -fx-font-family: "Roboto Light";
@@ -19,10 +190,6 @@
     -fx-font-size: 25;
 }
 
-.emulatorButton {
-    -fx-background-color: #F4F4F4;
-}
-
 .emulatorButton:hover {
     -fx-background-color: #D6DEE0;
 }
@@ -32,5 +199,14 @@
 }
 
 .contentArea {
-    -fx-background-color: #e0e0e0;
+    -fx-background-color: #dfdfdf;
+}
+
+.sideMenu {
+    -fx-background-color: #eeeeee;
+}
+
+.banner {
+    -fx-background-color: #eeeeee;
+    -fx-border-color: rgb(192, 192, 192);
 }

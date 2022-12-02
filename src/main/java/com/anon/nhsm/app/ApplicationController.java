@@ -13,16 +13,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 public class ApplicationController {
     private SaveManager saveManager;
     @FXML private AnchorPane ap;
-    @FXML private URL location;
-    @FXML private ResourceBundle resources;
     @FXML private TableColumn<SaveData, String> island;
     @FXML private TableColumn<SaveData, String> folder;
     @FXML private TableColumn<SaveData, String> description;
@@ -208,6 +204,15 @@ public class ApplicationController {
 
         try {
             saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, Paths.get(saveData.folder()));
+        } catch (IOException e) {
+            Application.openErrorAlert(e);
+        }
+    }
+
+    @FXML
+    void changeEmulatorTarget(ActionEvent event) {
+        try {
+            Application.showEmulatorSelector(Application.PRIMARY_STAGE);
         } catch (IOException e) {
             Application.openErrorAlert(e);
         }

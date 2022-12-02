@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -24,28 +27,100 @@
             <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="84.0" vgrow="ALWAYS" />
          </rowConstraints>
          <children>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                <children>
                   <VBox fx:id="contentAreaNoSelection" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Label text="No Emulator selected yet." />
+                        <Label text="Select the emulator you are using to play Animal Crossing: New Horizons">
+                           <font>
+                              <Font size="16.0" />
+                           </font></Label>
                      </children>
                   </VBox>
-                  <VBox fx:id="contentAreaRyujinx" alignment="CENTER" disable="true" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="contentAreaRyujinx" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Label text="RYUJINX" />
+                        <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="571.0" styleClass="banner" stylesheets="@../style.css">
+                                 <children>
+                                    <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@ryujinx.png" />
+                                       </image>
+                                    </ImageView>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" top="10.0" />
+                                 </padding>
+                              </HBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <TextArea editable="false" prefHeight="359.0" prefWidth="571.0" text="Due to the non-static directory structure of Ryujinx's save data, using it with NHSM requires you to specify the save directory of your Animal Crossing: New Horizon's game. This only needs to be done once, and will be remembered with future uses of NHSM.&#10;&#10;The folder should have a &quot;main.dat&quot; file inside, with the parent folder containing two folders &quot;0&quot; and &quot;1&quot;. You'll want to locate the &quot;0&quot; folder. The whole directory path usually looks something like this:&#10;&#10;Ryujinx\bis\user\save\0000000000000001\0&#10;&#10;&quot;0000000000000001&quot; folder is the part that will be different for everyone depending on when they installed and played Animal Crossing for the first time on the emulator." wrapText="true" VBox.vgrow="ALWAYS">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                    </TextArea>
+                                 </children>
+                                 <padding>
+                                    <Insets top="30.0" />
+                                 </padding>
+                              </VBox>
+                              <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="NEVER">
+                                 <children>
+                                    <Button mnemonicParsing="false" stylesheets="@../style.css" text="Locate Save Directory...">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                           </children>
+                           <padding>
+                              <Insets left="50.0" right="50.0" top="40.0" />
+                           </padding>
+                        </VBox>
                      </children>
-                  </VBox>
-                  <VBox fx:id="contentAreaYuzu" alignment="CENTER" disable="true" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  </AnchorPane>
+                  <AnchorPane fx:id="contentAreaYuzu" disable="true" prefHeight="200.0" prefWidth="200.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Label text="YUZU" />
+                        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="571.0" styleClass="banner" stylesheets="@../style.css">
+                                 <children>
+                                    <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@yuzu_emulator.png" />
+                                       </image>
+                                    </ImageView>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" top="10.0" />
+                                 </padding>
+                              </HBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <TextArea editable="false" prefHeight="359.0" prefWidth="571.0" text="NHSM is able to automatically locate the save directory of your Animal Crossing: New Horizons game for the Yuzu emulator.&#10;&#10;Press &quot;Open with Saves Manager&quot; to begin using!" wrapText="true" VBox.vgrow="ALWAYS">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                    </TextArea>
+                                 </children>
+                                 <padding>
+                                    <Insets top="30.0" />
+                                 </padding>
+                              </VBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="40.0" left="50.0" right="50.0" top="40.0" />
+                           </padding>
+                        </VBox>
                      </children>
-                  </VBox>
+                  </AnchorPane>
                </children>
             </AnchorPane>
-            <VBox alignment="TOP_CENTER" prefHeight="640.0" prefWidth="119.0">
+            <VBox alignment="TOP_CENTER" prefHeight="640.0" prefWidth="119.0" styleClass="sideMenu" stylesheets="@../style.css">
                <children>
-                  <HBox alignment="CENTER" prefHeight="70.0" prefWidth="498.0">
+                  <HBox alignment="CENTER" prefHeight="70.0" prefWidth="498.0" styleClass="sideMenu" stylesheets="@../style.css">
                      <children>
                         <Label styleClass="title" text="Supported Emulators">
                            <font>
@@ -57,12 +132,12 @@
                         </Label>
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="19.0" prefWidth="396.0">
+                  <HBox alignment="CENTER_LEFT" prefHeight="19.0" prefWidth="396.0" styleClass="sideMenu" stylesheets="@../style.css">
                      <children>
                         <Separator prefWidth="200.0" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
-                  <HBox fx:id="sideMenuRyujinx" alignment="CENTER_LEFT" onMouseClicked="#handleClickMenu" prefHeight="90.0" prefWidth="200.0" spacing="30.0" styleClass="emulatorButton" stylesheets="@../style.css">
+                  <HBox fx:id="sideMenuRyujinx" alignment="CENTER_LEFT" onMouseClicked="#handleClickMenu" prefHeight="90.0" prefWidth="200.0" spacing="30.0" stylesheets="@../style.css">
                      <children>
                         <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -81,8 +156,12 @@
                      <padding>
                         <Insets bottom="10.0" left="30.0" right="10.0" top="10.0" />
                      </padding>
+                     <styleClass>
+                        <String fx:value="sideMenu" />
+                        <String fx:value="emulatorButton" />
+                     </styleClass>
                   </HBox>
-                  <HBox fx:id="sideMenuYuzu" alignment="CENTER_LEFT" onMouseClicked="#handleClickMenu" prefHeight="90.0" prefWidth="200.0" spacing="30.0" styleClass="emulatorButton" stylesheets="@../style.css">
+                  <HBox fx:id="sideMenuYuzu" alignment="CENTER_LEFT" onMouseClicked="#handleClickMenu" prefHeight="90.0" prefWidth="200.0" spacing="30.0" stylesheets="@../style.css">
                      <children>
                         <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -100,6 +179,31 @@
                      </children>
                      <padding>
                         <Insets bottom="10.0" left="30.0" right="10.0" top="10.0" />
+                     </padding>
+                     <styleClass>
+                        <String fx:value="sideMenu" />
+                        <String fx:value="emulatorButton" />
+                     </styleClass>
+                  </HBox>
+                  <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="396.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Button fx:id="buttonOpenSavesManager" disable="true" mnemonicParsing="false" onMousePressed="#handleOpenSaveManager" stylesheets="@../style.css" text="Open with Saves Manager" HBox.hgrow="NEVER">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets bottom="20.0" left="70.0" right="70.0" top="20.0" />
+                           </padding>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="30.0" />
                      </padding>
                   </HBox>
                </children>
