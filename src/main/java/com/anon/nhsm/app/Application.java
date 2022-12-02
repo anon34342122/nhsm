@@ -32,15 +32,20 @@ public class Application extends javafx.application.Application {
 
     @Override
     public void start(final Stage stage) throws IOException {
+        PRIMARY_STAGE = stage;
+        Stages.showEmulatorSelector(appProperties);
+
         if (setupExceptionThrown != null) {
             JavaFXHelper.openErrorAlert(setupExceptionThrown, Platform::exit);
-        } else {
-            PRIMARY_STAGE = stage;
-            // TODO: Should have an error if we have an emulator target for some reason with no directory
-            if (appProperties.emulatorTarget() != null && appProperties.emulatorTarget().getSaveDirectory(appProperties) != null) {
-                Stages.showIslandManager(appProperties);
-            } else {
+            return;
+        }
+
+        if (appProperties.emulatorTarget() != null) {
+            if (appProperties.emulatorTarget().getSaveDirectory(appProperties) == null) {
+                JavaFXHelper.openErrorAlert(new RuntimeException("The save directory was null for this emulator even though the app properties has a set emulator target"));
                 Stages.showEmulatorSelector(appProperties);
+            } else {
+                Stages.showIslandManager(appProperties);
             }
         }
     }
