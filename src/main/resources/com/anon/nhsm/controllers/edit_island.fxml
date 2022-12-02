@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Text?>
 
 
-<DialogPane prefHeight="236.0" prefWidth="527.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.edit_island.EditIslandController">
+<DialogPane prefHeight="236.0" prefWidth="527.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.controllers.EditIslandController">
    <buttonTypes>
       <ButtonType fx:constant="FINISH" />
       <ButtonType fx:constant="CANCEL" />

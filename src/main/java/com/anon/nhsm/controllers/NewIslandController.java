@@ -1,4 +1,4 @@
-package com.anon.nhsm.edit_island;
+package com.anon.nhsm.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -7,7 +7,7 @@ import javafx.scene.layout.AnchorPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class EditIslandController {
+public class NewIslandController {
     @FXML private AnchorPane ap;
     @FXML private URL location;
     @FXML private ResourceBundle resources;
@@ -20,13 +20,5 @@ public class EditIslandController {
 
     public String getIslandDescription() {
         return description.getText();
-    }
-
-    public void setIslandName(final String islandName) {
-        this.islandName.setText(islandName);
-    }
-
-    public void setIslandDescription(final String islandDescription) {
-        this.description.setText(islandDescription);
     }
 }

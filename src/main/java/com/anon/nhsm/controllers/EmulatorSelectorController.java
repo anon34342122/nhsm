@@ -1,5 +1,7 @@
-package com.anon.nhsm.app;
+package com.anon.nhsm.controllers;
 
+import com.anon.nhsm.AppProperties;
+import com.anon.nhsm.app.Application;
 import com.anon.nhsm.data.SaveManager;
 import com.anon.nhsm.data.AppPaths;
 import javafx.fxml.FXML;

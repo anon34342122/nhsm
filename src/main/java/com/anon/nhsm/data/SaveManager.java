@@ -1,9 +1,10 @@
 package com.anon.nhsm.data;
 
-import com.anon.nhsm.app.AppProperties;
+import com.anon.nhsm.AppProperties;
 import com.anon.nhsm.app.Application;
-import com.anon.nhsm.edit_island.EditIslandController;
-import com.anon.nhsm.emulator_local_save.EmulatorLocalSaveController;
+import com.anon.nhsm.Main;
+import com.anon.nhsm.controllers.EditIslandController;
+import com.anon.nhsm.controllers.EmulatorLocalSaveController;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
@@ -431,9 +432,9 @@ public class SaveManager {
     public static void writeMetadataFile(final File file, final SaveData saveData) throws IOException {
         if (!file.exists() || file.delete()) {
             try (final FileWriter fileWriter = new FileWriter(file)) {
-                final Gson gson = Application.GSON.create();
+                final Gson gson = Main.GSON.create();
                 final JsonElement jsonElement = gson.toJsonTree(saveData);
-                jsonElement.getAsJsonObject().addProperty("version", Application.DATA_VERSION.toString());
+                jsonElement.getAsJsonObject().addProperty("version", Main.DATA_VERSION.toString());
                 gson.toJson(jsonElement, fileWriter);
             } catch (final IOException e) {
                 throw new IOException("Could not write metadata to file: " + file.getAbsolutePath() + ", for island: " + saveData.island(), e);
@@ -445,7 +446,7 @@ public class SaveManager {
         if (file.exists()) {
             try (final FileReader fileReader = new FileReader(file)) {
                 final Type type = new TypeToken<SaveData>(){}.getType();
-                final Gson gson = Application.GSON.create();
+                final Gson gson = Main.GSON.create();
                 return gson.fromJson(fileReader, type);
             } catch (final IOException e) {
                 throw new IOException("Could not read metadata from file: " + file.getAbsolutePath(), e);

@@ -1,8 +1,8 @@
-package com.anon.nhsm.app;
+package com.anon.nhsm.controllers;
 
+import com.anon.nhsm.app.Application;
 import com.anon.nhsm.data.SaveData;
 import com.anon.nhsm.data.SaveManager;
-import com.anon.nhsm.new_island.NewIslandController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-public class ApplicationController {
+public class IslandManagerController {
     private SaveManager saveManager;
     @FXML private AnchorPane ap;
     @FXML private TableColumn<SaveData, String> island;
@@ -103,7 +103,7 @@ public class ApplicationController {
         alert.setTitle("Swap with Local");
         alert.setContentText("Do you want to swap this island with your Emulator Local Save?");
         alert.setHeaderText("Swapping '" + saveData.island() + "' island with Emulator Local Save");
-        alert.setGraphic(new ImageView(getClass().getResource("yuzu.png").toString()));
+        alert.setGraphic(new ImageView(Application.class.getResource("yuzu.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
@@ -127,7 +127,7 @@ public class ApplicationController {
         alert.setTitle("Delete Island");
         alert.setContentText("WARNING: Are you ABSOLUTELY sure you want to delete this island? This is an IRREVERSIBLE action.");
         alert.setHeaderText("Deleting '" + saveData.island() + "' Island");
-        alert.setGraphic(new ImageView(getClass().getResource("delete.png").toString()));
+        alert.setGraphic(new ImageView(Application.class.getResource("delete.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 
@@ -177,7 +177,7 @@ public class ApplicationController {
         alert.setTitle("Warning");
         alert.setContentText("Make sure your Emulator is not running the game FIRST before editing this save data.");
         alert.setHeaderText("WARNING: Make sure the game is not open");
-        alert.setGraphic(new ImageView(getClass().getResource("delete.png").toString()));
+        alert.setGraphic(new ImageView(Application.class.getResource("delete.png").toString()));
         alert.initOwner(Application.PRIMARY_STAGE);
         final Optional<ButtonType> type = alert.showAndWait();
 

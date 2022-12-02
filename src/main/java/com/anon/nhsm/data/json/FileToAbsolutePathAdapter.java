@@ -1,4 +1,4 @@
-package com.anon.nhsm.app.json;
+package com.anon.nhsm.data.json;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

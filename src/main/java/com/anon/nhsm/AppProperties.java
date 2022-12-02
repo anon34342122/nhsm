@@ -1,5 +1,6 @@
-package com.anon.nhsm.app;
+package com.anon.nhsm;
 
+import com.anon.nhsm.app.Application;
 import com.anon.nhsm.data.EmulatorType;
 import com.anon.nhsm.data.AppPaths;
 import com.google.gson.Gson;
@@ -107,7 +108,7 @@ public record AppProperties(File islandsDirectory, File nhsExecutable, File ryuj
             if (file.exists()) {
                 try (final FileReader fileReader = new FileReader(file)) {
                     final Type type = new TypeToken<AppProperties>(){}.getType();
-                    final Gson gson = Application.GSON.create();
+                    final Gson gson = Main.GSON.create();
                     return gson.fromJson(fileReader, type);
                 } catch (final IOException e) {
                     throw new IOException("Could not read Save Manager properties from file: " + file.getAbsolutePath(), e);
@@ -127,9 +128,9 @@ public record AppProperties(File islandsDirectory, File nhsExecutable, File ryuj
             }
 
             try (final FileWriter fileWriter = new FileWriter(file)) {
-                final Gson gson = Application.GSON.create();
+                final Gson gson = Main.GSON.create();
                 final JsonElement jsonElement = gson.toJsonTree(properties);
-                jsonElement.getAsJsonObject().addProperty("version", Application.DATA_VERSION.toString());
+                jsonElement.getAsJsonObject().addProperty("version", Main.DATA_VERSION.toString());
                 gson.toJson(jsonElement, fileWriter);
             } catch (final IOException e) {
                 throw new IOException("Could not write Save Manager properties to file: " + file.getAbsolutePath(), e);

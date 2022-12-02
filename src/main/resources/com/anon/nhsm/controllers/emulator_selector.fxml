@@ -17,7 +17,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="ap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="665.0" prefWidth="1067.0" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.app.EmulatorSelectorController">
+<AnchorPane fx:id="ap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="665.0" prefWidth="1067.0" stylesheets="@../style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.controllers.EmulatorSelectorController">
    <children>
       <GridPane prefHeight="665.0" prefWidth="1067.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <columnConstraints>
@@ -46,7 +46,7 @@
                                  <children>
                                     <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@ryujinx.png" />
+                                          <Image url="@../app/ryujinx.png" />
                                        </image>
                                     </ImageView>
                                  </children>
@@ -107,7 +107,7 @@
                                  <children>
                                     <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@yuzu_emulator.png" />
+                                          <Image url="@../app/yuzu_emulator.png" />
                                        </image>
                                     </ImageView>
                                  </children>
@@ -159,7 +159,7 @@
                      <children>
                         <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@ryujinx.png" />
+                              <Image url="@../app/ryujinx.png" />
                            </image>
                            <HBox.margin>
                               <Insets />
@@ -183,7 +183,7 @@
                      <children>
                         <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@yuzu_emulator.png" />
+                              <Image url="@../app/yuzu_emulator.png" />
                            </image>
                            <HBox.margin>
                               <Insets />

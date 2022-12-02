@@ -25,7 +25,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'com.anon.nhsm'
-    mainClass = 'com.anon.nhsm.app.Application'
+    mainClass = 'com.anon.nhsm.Main'
 }
 
 javafx {
