@@ -53,7 +53,7 @@ jlink {
     forceMerge('log4j-core' )
     launcher {
         name = 'NHSM'
-        jvmArgs = ['-Dlog4j.configurationFile=./log4j2.xml']
+        jvmArgs = ['-Dlog4j.configurationFile=./runtime/bin/log4j2.xml']
     }
     mergedModule {
         additive = true
@@ -67,6 +67,17 @@ jlink {
         if (org.gradle.internal.os.OperatingSystem.current().windows) {
             imageOptions = ['--icon', 'src/main/resources/com/anon/nhsm/app.ico']
         }
+        skipInstaller = true
+        appVersion = "0.0.1"
+    }
+}
+
+tasks.jlink.doLast {
+    copy {
+        from('src/main/resources') {
+            include "log4j2.xml"
+        }
+        into("$buildDir/image/bin")
     }
 }
 
