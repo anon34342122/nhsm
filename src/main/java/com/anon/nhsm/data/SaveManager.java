@@ -56,7 +56,7 @@ public class SaveManager {
         this.appProperties = Main.writeAppProperties(properties);
     }
 
-    public SaveMetadata getEmulatorSaveData() {
+    public SaveMetadata getEmulatorSaveMetadata() {
         return emulatorSaveMetadata;
     }
 

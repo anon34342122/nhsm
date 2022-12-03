@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 class SaveManagerTest {
     static {
         Bootstrap.bootStrap();
@@ -71,8 +73,11 @@ class SaveManagerTest {
 
     @ParameterizedTest
     @MethodSource("provideSaveManagerConfigs")
-    void setupWithExistingMetadata(final SaveManager.Config config) {
-        logger.info("Starting 'setup' test with emulator save directory: " + config.emulatorSaveDirectory().getAbsolutePath());
+    void setupWithExistingMetadata(final AppProperties appProperties) {
+        logger.info("Starting 'setupWithExistingMetadata' test with emulator target: " + appProperties.emulatorTarget());
+        final File emulatorSaveDirectory = appProperties.emulatorTarget().getSaveDirectory(appProperties);
+        final SaveManager.Config config = new SaveManager.Config(emulatorSaveDirectory);
+        logger.info("Creating SaveManager with emulator save directory: " + config.emulatorSaveDirectory());
         saveManager = new SaveManager(APP_PROPERTIES, config);
 
         try {
@@ -81,15 +86,15 @@ class SaveManagerTest {
             logger.info("Written local save metadata: " + writtenSaveMetadata.toString());
 
             final SaveMetadata readSaveMetadata = readSaveMetadataInDirectory(config.emulatorSaveDirectory());
-            assert(readSaveMetadata != null);
-            assert(SETUP_TEST_METADATA_NAME.equals(readSaveMetadata.island()));
-            assert(SETUP_TEST_METADATA_DESCRIPTION.equals(readSaveMetadata.description()));
+            assertNotNull(readSaveMetadata, "Written save metadata is null after reading");
+            assertEquals(SETUP_TEST_METADATA_NAME, readSaveMetadata.island(), "Read save metadata name is different from what we wrote");
+            assertEquals(SETUP_TEST_METADATA_DESCRIPTION, readSaveMetadata.description(), "Read save metadata description is different from what we wrote");
 
-            assert(saveManager.getEmulatorSaveData() == null);
+            assertNull(saveManager.getEmulatorSaveMetadata(), "Save Manager already has a loaded emulator save metdata for some reason");
 
             saveManager.setup();
 
-            assert(readSaveMetadata.equals(saveManager.getEmulatorSaveData()));
+            assertEquals(readSaveMetadata, saveManager.getEmulatorSaveMetadata(), "Save Manager did not have the same emulator save metadata after setup");
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -97,8 +102,8 @@ class SaveManagerTest {
 
     private static Stream<Arguments> provideSaveManagerConfigs() {
         return Stream.of(
-                Arguments.of(new SaveManager.Config(APP_PROPERTIES.yuzuSaveDirectory())),
-                Arguments.of(new SaveManager.Config(APP_PROPERTIES.ryujinxSaveDirectory()))
+                Arguments.of(APP_PROPERTIES.copy().emulatorTarget(EmulatorType.YUZU).build()),
+                Arguments.of(APP_PROPERTIES.copy().emulatorTarget(EmulatorType.RYUJINX).build())
         );
     }
 }
