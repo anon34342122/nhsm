@@ -88,20 +88,13 @@ public class IslandManagerController {
             final FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(NewIslandController.class.getResource("new_island.fxml"));
             final DialogPane newIslandDialogPane = fxmlLoader.load();
-
             final NewIslandController controller = fxmlLoader.getController();
+            final Optional<ButtonType> clickedButton = Alerts.promptNewIsland(newIslandDialogPane);
 
-            final Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setDialogPane(newIslandDialogPane);
-            dialog.setTitle("Add New Island");
-            dialog.initOwner(Application.PRIMARY_STAGE);
-
-            final Optional<ButtonType> clickedbutton = dialog.showAndWait();
-
-            if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
+            if (clickedButton.isPresent() && clickedButton.get() == ButtonType.FINISH) {
                 final boolean createdNewIsland = saveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription(), conflictingMetadata -> {
                     final String islandName = conflictingMetadata.island();
-                    showNamingConflictWarning("Could not create new '" + islandName + "' island", islandName);
+                    Alerts.notifyNamingConflict("Could not create new '" + islandName + "' island", islandName);
                 });
 
                 if (createdNewIsland) {
@@ -124,26 +117,14 @@ public class IslandManagerController {
         }
 
         if (saveMetadata.emulatorLocked()) {
-            showIslandLockedWarning();
+            Alerts.notifyIslandLocked();
             return;
         }
 
-        final Alert alert = new Alert(Alert.AlertType.WARNING,
-                "Do you want to swap this island with your Emulator Local Save?",
-                ButtonType.YES,
-                ButtonType.CANCEL);
-        alert.setTitle("Swap with Local");
-        alert.setHeaderText("Swapping '" + saveMetadata.island() + "' island with Emulator Local Save");
         final ImageView emulatorLogo = targetEmulator == EmulatorType.YUZU ? yuzuLogo : ryujinxLogo;
-        final ImageView graphic = new ImageView(emulatorLogo.getImage());
-        graphic.setFitWidth(45);
-        graphic.setFitHeight(45);
+        final Optional<ButtonType> clickedButton = Alerts.promptSwapIsland(saveMetadata, emulatorLogo);
 
-        alert.setGraphic(graphic);
-        alert.initOwner(Application.PRIMARY_STAGE);
-        final Optional<ButtonType> type = alert.showAndWait();
-
-        if (type.isPresent() && type.get() == ButtonType.YES) {
+        if (clickedButton.isPresent() && clickedButton.get() == ButtonType.YES) {
             try {
                 saveManager.swapWithLocalSave(saveMetadata, this::promptToConvertLocalSaveIntoIsland);
                 refreshIslandTables();
@@ -158,44 +139,17 @@ public class IslandManagerController {
         final FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(EmulatorLocalSaveController.class.getResource("emulator_local_save.fxml"));
         final DialogPane newIslandDialogPane = fxmlLoader.load();
-
         final EmulatorLocalSaveController controller = fxmlLoader.getController();
+        final Optional<ButtonType> clickedButton = Alerts.promptNameLocalSave(newIslandDialogPane);
 
-        final Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setDialogPane(newIslandDialogPane);
-        dialog.setTitle("Name your Emulator Local Save as an Island");
-        dialog.initOwner(Application.PRIMARY_STAGE);
-
-        final Optional<ButtonType> clickedbutton = dialog.showAndWait();
-
-        if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
+        if (clickedButton.isPresent() && clickedButton.get() == ButtonType.FINISH) {
             return saveManager.convertLocalSaveToIsland(localSaveMetadataFile, controller.getIslandName(), controller.getIslandDescription(), conflictingMetadata -> {
                final String islandName = conflictingMetadata.island();
-               showNamingConflictWarning("Could not convert 'Emulator Local Save' to list of Islands", islandName);
+               Alerts.notifyNamingConflict("Could not convert 'Emulator Local Save' to list of Islands", islandName);
             });
         }
 
         return false;
-    }
-
-    public void showNamingConflictWarning(final String headerError, final String newIslandName) {
-        final Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
-        alert.setContentText("The name '" + newIslandName + "' you tried to give for this island already exists.");
-        alert.setHeaderText(headerError);
-        alert.initOwner(Application.PRIMARY_STAGE);
-        alert.showAndWait();
-        logger.info(headerError);
-    }
-
-    private void showIslandLockedWarning() {
-        final Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
-        alert.setContentText("This island cannot be swapped, deleted, edited or duplicated since it is being used currently by a different target emulator." +
-                " Switch to the other emulator it's using by clicking 'Settings -> Change Emulator Target' to make any changes to this island.");
-        alert.setHeaderText("WARNING: Island in use by another emulator");
-        alert.initOwner(Application.PRIMARY_STAGE);
-        alert.showAndWait();
     }
 
     public void handleDeleteIsland(final ActionEvent actionEvent) {
@@ -205,20 +159,13 @@ public class IslandManagerController {
         }
 
         if (saveMetadata.emulatorLocked()) {
-            showIslandLockedWarning();
+            Alerts.notifyIslandLocked();
             return;
         }
 
-        final Alert alert = new Alert(Alert.AlertType.WARNING,
-                "WARNING: Are you ABSOLUTELY sure you want to delete this island? This is an IRREVERSIBLE action.",
-                ButtonType.YES,
-                ButtonType.CANCEL);
-        alert.setTitle("Delete Island");
-        alert.setHeaderText("Deleting '" + saveMetadata.island() + "' Island");
-        alert.initOwner(Application.PRIMARY_STAGE);
-        final Optional<ButtonType> type = alert.showAndWait();
+        final Optional<ButtonType> clickedButton = Alerts.promptDeleteIsland(saveMetadata);
 
-        if (type.isPresent() && type.get() == ButtonType.YES) {
+        if (clickedButton.isPresent() && clickedButton.get() == ButtonType.YES) {
             try {
                 saveManager.deleteIsland(saveMetadata);
                 refreshIslandTables();
@@ -235,14 +182,14 @@ public class IslandManagerController {
         }
 
         if (saveMetadata.emulatorLocked()) {
-            showIslandLockedWarning();
+            Alerts.notifyIslandLocked();
             return;
         }
 
         try {
             final boolean duplicatedIsland = saveManager.duplicateIsland(saveMetadata, conflictingMetadata -> {
                 final String islandName = conflictingMetadata.island();
-                showNamingConflictWarning("Could not duplicate '" + islandName + "' island", islandName);
+                Alerts.notifyNamingConflict("Could not duplicate '" + islandName + "' island", islandName);
             });
 
             if (duplicatedIsland) {
@@ -261,14 +208,14 @@ public class IslandManagerController {
         }
 
         if (oldSaveMetadata.emulatorLocked()) {
-            showIslandLockedWarning();
+            Alerts.notifyIslandLocked();
             return;
         }
 
         try {
             final SaveMetadata newSaveMetadata = editIslandDetails(oldSaveMetadata, conflictingMetadata -> {
                 final String islandName = conflictingMetadata.island();
-                showNamingConflictWarning("Could not edit '" + oldSaveMetadata.island() + "' island", islandName);
+                Alerts.notifyNamingConflict("Could not edit '" + oldSaveMetadata.island() + "' island", islandName);
             });
             if (newSaveMetadata != oldSaveMetadata) {
                 refreshIslandTables();
@@ -287,15 +234,9 @@ public class IslandManagerController {
             final EditIslandController controller = fxmlLoader.getController();
             controller.setIslandName(oldSaveMetadata.island());
             controller.setIslandDescription(oldSaveMetadata.description());
+            final Optional<ButtonType> clickedButton = Alerts.promptEditIsland(oldSaveMetadata, newIslandDialogPane);
 
-            final Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setDialogPane(newIslandDialogPane);
-            dialog.setTitle("Edit '" + oldSaveMetadata.island() + "' Island");
-            dialog.initOwner(Application.PRIMARY_STAGE);
-
-            final Optional<ButtonType> clickedbutton = dialog.showAndWait();
-
-            if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
+            if (clickedButton.isPresent() && clickedButton.get() == ButtonType.FINISH) {
                 final SaveMetadata updatedSaveMetadata = SaveMetadata.nameAndDescription(controller.getIslandName(), controller.getIslandDescription());
                 if (saveManager.updateIslandDetails(oldSaveMetadata, updatedSaveMetadata, onNamingConflict)) {
                     return updatedSaveMetadata;
@@ -309,18 +250,13 @@ public class IslandManagerController {
     }
 
     public void handleLocalSaveEditor(final ActionEvent actionEvent) {
-        final Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
-        alert.setContentText("Make sure your Emulator is not running the game FIRST before editing this save data.");
-        alert.setHeaderText("WARNING: Make sure the game is not open");
-        alert.initOwner(Application.PRIMARY_STAGE);
-        final Optional<ButtonType> type = alert.showAndWait();
+        final Optional<ButtonType> clickedButton = Alerts.notifyEnsureGameNotRunning();
 
-        if (type.isPresent() && type.get() == ButtonType.OK) {
+        if (clickedButton.isPresent() && clickedButton.get() == ButtonType.OK) {
             try {
                 final File islandSaveDirectory = saveManager.getConfig().emulatorSaveDirectory();
                 final String islandName = saveManager.getEmulatorSaveMetadata().island();
-                saveManager.openSaveEditorFor(islandSaveDirectory, islandName, this::promptNHSEMissing, this::promptSelectNHSE, this::notifyMainDatMissing);
+                saveManager.openSaveEditorFor(islandSaveDirectory, islandName, this::trySelectNHSEAfterMissing, this::trySelectNHSE, Alerts::notifyMainDatMissing);
             } catch (final IOException e) {
                 JavaFXHelper.openErrorAlert(e);
             }
@@ -330,57 +266,33 @@ public class IslandManagerController {
     public void handleSaveEditor(final ActionEvent actionEvent) {
         final SaveMetadata saveMetadata = saves.getSelectionModel().getSelectedItem();
         if (saveMetadata == null) {
-            final Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setContentText("Please select an Island to use the Save Editor with.");
-            alert.setHeaderText("Select an Island");
-            alert.initOwner(Application.PRIMARY_STAGE);
-            alert.showAndWait();
+            Alerts.promptSelectIslandSaveEditor();
             return;
         }
 
         if (saveMetadata.emulatorLocked()) {
-            showIslandLockedWarning();
+            Alerts.notifyIslandLocked();
             return;
         }
 
         try {
             final File islandSaveDirectory = saveMetadata.nhsmIslandDirectory(saveManager.getAppProperties());
             final String islandName = islandSaveDirectory.getName();
-            saveManager.openSaveEditorFor(islandSaveDirectory, islandName, this::promptNHSEMissing, this::promptSelectNHSE, this::notifyMainDatMissing);
+            saveManager.openSaveEditorFor(islandSaveDirectory, islandName, this::trySelectNHSEAfterMissing, this::trySelectNHSE, Alerts::notifyMainDatMissing);
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
         }
     }
 
-    private void notifyMainDatMissing(final String islandName) {
-        final Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
-        alert.setContentText("The '" + islandName + "' island does not have a main.dat file, so the Save Editor cannot open.");
-        alert.setHeaderText("Cannot use Save Editor");
-        alert.initOwner(Application.PRIMARY_STAGE);
-        alert.showAndWait();
+    private boolean trySelectNHSEAfterMissing() throws IOException {
+        Alerts.notifyMissingNHSE();
+        return trySelectNHSE();
     }
 
-    private boolean promptNHSEMissing() throws IOException {
-        final Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
-        alert.setContentText("Your previously chosen directory for the NHSE executable no longer exists or the executable is missing. Next prompt will have you select the directory again.");
-        alert.setHeaderText("Re-select NHSE directory");
-        alert.initOwner(Application.PRIMARY_STAGE);
-        alert.showAndWait();
-        return promptSelectNHSE();
-    }
+    private boolean trySelectNHSE() throws IOException {
+        final Optional<ButtonType> clickedButton = Alerts.promptSetNHSEExecutable();
 
-    private boolean promptSelectNHSE() throws IOException {
-        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Set NHSE Executable Directory");
-        alert.setContentText("In order to edit the save data of an island, you must select the directory of your NHSE executable. Press OK to select the directory or cancel to stop.");
-        alert.setHeaderText("Select the NHSE directory to proceed");
-        alert.initOwner(Application.PRIMARY_STAGE);
-        final Optional<ButtonType> type = alert.showAndWait();
-
-        if (type.isPresent() && type.get() == ButtonType.OK) {
+        if (clickedButton.isPresent() && clickedButton.get() == ButtonType.OK) {
             final DirectoryChooser directoryChooser = new DirectoryChooser();
             final File selectedDirectory = directoryChooser.showDialog(Application.PRIMARY_STAGE);
 
@@ -392,12 +304,7 @@ public class IslandManagerController {
                     return true;
                 }
 
-                final Alert exeMissing = new Alert(Alert.AlertType.WARNING);
-                exeMissing.setTitle("Warning");
-                exeMissing.setContentText("The selected directory does not contain an NHSE executable with the following name: " + AppPaths.NHSE_EXECUTABLE);
-                exeMissing.setHeaderText("Cannot use Save Editor");
-                exeMissing.initOwner(Application.PRIMARY_STAGE);
-                exeMissing.showAndWait();
+                Alerts.notifySelectedDirectoryNoNHSE();
             }
         }
 

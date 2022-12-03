@@ -82,6 +82,7 @@ public class SaveManager {
     public interface ConvertLocalSaveIntoIsland {
         boolean tryConvert(final File localSaveMetadataFile) throws IOException;
     }
+
     public boolean convertLocalSaveToIsland(final File metadataFile, final String islandName, final String islandDescription, final OnNamingConflict onNamingConflict) throws IOException {
         final SaveMetadata newMetadata = new SaveMetadata(islandName, islandDescription, new Date(), false);
 
