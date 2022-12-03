@@ -437,7 +437,7 @@ public class SaveManager {
         return new SaveMetadata(islandName, islandDescription, new Date(), false);
     }
 
-    public static void writeMetadataFile(final File file, final SaveMetadata saveMetadata) throws IOException {
+    public void writeMetadataFile(final File file, final SaveMetadata saveMetadata) throws IOException {
         if (!file.exists() || file.delete()) {
             try (final FileWriter fileWriter = new FileWriter(file)) {
                 final Gson gson = Main.GSON.create();
@@ -451,7 +451,7 @@ public class SaveManager {
         }
     }
 
-    public static SaveMetadata readMetdataFile(final File file) throws IOException {
+    public SaveMetadata readMetdataFile(final File file) throws IOException {
         if (file.exists()) {
             try (final FileReader fileReader = new FileReader(file)) {
                 final Type type = new TypeToken<SaveMetadata>(){}.getType();
