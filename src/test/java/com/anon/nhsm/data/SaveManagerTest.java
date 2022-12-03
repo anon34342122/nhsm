@@ -34,6 +34,8 @@ class SaveManagerTest {
             .ryujinxSaveDirectory(sandbox(new File(AppPaths.createRyujinxSavesDirectory(), "0000000000000001\\0")))
             .yuzuSaveDirectory(sandbox(AppPaths.createYuzuSaveDirectory()))
             .build();
+    private static final AppProperties YUZU_APP_PROPERTIES = APP_PROPERTIES.copy().emulatorTarget(EmulatorType.YUZU).build();
+    private static final AppProperties RYUJINX_APP_PROPERTIES = APP_PROPERTIES.copy().emulatorTarget(EmulatorType.RYUJINX).build();
     public static final String SETUP_TEST_METADATA_NAME = "Setup Test Metadata";
     public static final String SETUP_TEST_METADATA_DESCRIPTION = "This is a description for test metadata";
     private SaveManager saveManager;
@@ -57,9 +59,9 @@ class SaveManagerTest {
 
     @BeforeAll
     public static void init() {
-        assert(APP_PROPERTIES.yuzuSaveDirectory().mkdirs());
-        assert(APP_PROPERTIES.ryujinxSaveDirectory().mkdirs());
-        assert(APP_PROPERTIES.islandsDirectory().mkdirs());
+        assertTrue(APP_PROPERTIES.yuzuSaveDirectory().mkdirs(), "Couldn't make the yuzu save directories");
+        assertTrue(APP_PROPERTIES.ryujinxSaveDirectory().mkdirs(), "Couldn't make the ryujinx save directories");
+        assertTrue(APP_PROPERTIES.islandsDirectory().mkdirs(), "Couldn't make the island storage directories");
     }
 
     @AfterAll
@@ -102,8 +104,8 @@ class SaveManagerTest {
 
     private static Stream<Arguments> provideSaveManagerConfigs() {
         return Stream.of(
-                Arguments.of(APP_PROPERTIES.copy().emulatorTarget(EmulatorType.YUZU).build()),
-                Arguments.of(APP_PROPERTIES.copy().emulatorTarget(EmulatorType.RYUJINX).build())
+                Arguments.of(YUZU_APP_PROPERTIES),
+                Arguments.of(RYUJINX_APP_PROPERTIES)
         );
     }
 }
