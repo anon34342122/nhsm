@@ -3,9 +3,10 @@ package com.anon.nhsm.controllers;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.app.Application;
 import com.anon.nhsm.app.JavaFXHelper;
+import com.anon.nhsm.data.AppPaths;
 import com.anon.nhsm.data.EmulatorType;
-import com.anon.nhsm.data.SaveMetadata;
 import com.anon.nhsm.data.SaveManager;
+import com.anon.nhsm.data.SaveMetadata;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -14,12 +15,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.DirectoryChooser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
 public class IslandManagerController {
-    public static final String LOCKED_SUFFIX = " (LOCKED)";
+    private static final Logger logger = LogManager.getLogger(IslandManagerController.class);
+    private static final String LOCKED_SUFFIX = " (LOCKED)";
     private SaveManager saveManager;
     @FXML private AnchorPane ap;
     @FXML private TableColumn<SaveMetadata, String> island;
@@ -93,7 +99,12 @@ public class IslandManagerController {
             final Optional<ButtonType> clickedbutton = dialog.showAndWait();
 
             if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
-                if (saveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription())) {
+                final boolean createdNewIsland = saveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription(), conflictingMetadata -> {
+                    final String islandName = conflictingMetadata.island();
+                    showNamingConflictWarning("Could not create new '" + islandName + "' island", islandName);
+                });
+
+                if (createdNewIsland) {
                     refreshIslandTables();
                 }
             }
@@ -134,12 +145,47 @@ public class IslandManagerController {
 
         if (type.isPresent() && type.get() == ButtonType.YES) {
             try {
-                saveManager.swapWithLocalSave(saveMetadata);
+                saveManager.swapWithLocalSave(saveMetadata, this::promptToConvertLocalSaveIntoIsland);
                 refreshIslandTables();
             } catch (final IOException e) {
                 JavaFXHelper.openErrorAlert(e);
             }
         }
+    }
+
+    public boolean promptToConvertLocalSaveIntoIsland(final File localSaveMetadataFile) throws IOException {
+        logger.info("Prompting to convert emulator local save into an island");
+        final FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(EmulatorLocalSaveController.class.getResource("emulator_local_save.fxml"));
+        final DialogPane newIslandDialogPane = fxmlLoader.load();
+
+        final EmulatorLocalSaveController controller = fxmlLoader.getController();
+
+        final Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setDialogPane(newIslandDialogPane);
+        dialog.setTitle("Name your Emulator Local Save as an Island");
+        dialog.initOwner(Application.PRIMARY_STAGE);
+
+        final Optional<ButtonType> clickedbutton = dialog.showAndWait();
+
+        if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
+            return saveManager.convertLocalSaveToIsland(localSaveMetadataFile, controller.getIslandName(), controller.getIslandDescription(), conflictingMetadata -> {
+               final String islandName = conflictingMetadata.island();
+               showNamingConflictWarning("Could not convert 'Emulator Local Save' to list of Islands", islandName);
+            });
+        }
+
+        return false;
+    }
+
+    public void showNamingConflictWarning(final String headerError, final String newIslandName) {
+        final Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setContentText("The name '" + newIslandName + "' you tried to give for this island already exists.");
+        alert.setHeaderText(headerError);
+        alert.initOwner(Application.PRIMARY_STAGE);
+        alert.showAndWait();
+        logger.info(headerError);
     }
 
     private void showIslandLockedWarning() {
@@ -194,8 +240,14 @@ public class IslandManagerController {
         }
 
         try {
-            saveManager.duplicateIsland(saveMetadata);
-            refreshIslandTables();
+            final boolean duplicatedIsland = saveManager.duplicateIsland(saveMetadata, conflictingMetadata -> {
+                final String islandName = conflictingMetadata.island();
+                showNamingConflictWarning("Could not duplicate '" + islandName + "' island", islandName);
+            });
+
+            if (duplicatedIsland) {
+                refreshIslandTables();
+            }
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
         }
@@ -214,13 +266,46 @@ public class IslandManagerController {
         }
 
         try {
-            final SaveMetadata newSaveMetadata = saveManager.editIslandDetails(oldSaveMetadata);
+            final SaveMetadata newSaveMetadata = editIslandDetails(oldSaveMetadata, conflictingMetadata -> {
+                final String islandName = conflictingMetadata.island();
+                showNamingConflictWarning("Could not edit '" + oldSaveMetadata.island() + "' island", islandName);
+            });
             if (newSaveMetadata != oldSaveMetadata) {
                 refreshIslandTables();
             }
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
         }
+    }
+
+    public SaveMetadata editIslandDetails(final SaveMetadata oldSaveMetadata, final SaveManager.OnNamingConflict onNamingConflict) throws IOException {
+        try {
+            logger.info("Handling edit of" + oldSaveMetadata.island());
+            final FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(EditIslandController.class.getResource("edit_island.fxml"));
+            final DialogPane newIslandDialogPane = fxmlLoader.load();
+            final EditIslandController controller = fxmlLoader.getController();
+            controller.setIslandName(oldSaveMetadata.island());
+            controller.setIslandDescription(oldSaveMetadata.description());
+
+            final Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setDialogPane(newIslandDialogPane);
+            dialog.setTitle("Edit '" + oldSaveMetadata.island() + "' Island");
+            dialog.initOwner(Application.PRIMARY_STAGE);
+
+            final Optional<ButtonType> clickedbutton = dialog.showAndWait();
+
+            if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
+                final SaveMetadata updatedSaveMetadata = SaveMetadata.nameAndDescription(controller.getIslandName(), controller.getIslandDescription());
+                if (saveManager.updateIslandDetails(oldSaveMetadata, updatedSaveMetadata, onNamingConflict)) {
+                    return updatedSaveMetadata;
+                }
+            }
+        } catch (final IOException e) {
+            throw new IOException("Something went wrong editing the details of an island.", e);
+        }
+
+        return oldSaveMetadata;
     }
 
     public void handleLocalSaveEditor(final ActionEvent actionEvent) {
@@ -233,7 +318,9 @@ public class IslandManagerController {
 
         if (type.isPresent() && type.get() == ButtonType.OK) {
             try {
-                saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, saveManager.getConfig().emulatorSaveDirectory().toPath());
+                final File islandSaveDirectory = saveManager.getConfig().emulatorSaveDirectory();
+                final String islandName = saveManager.getEmulatorSaveMetadata().island();
+                saveManager.openSaveEditorFor(islandSaveDirectory, islandName, this::promptNHSEMissing, this::promptSelectNHSE, this::notifyMainDatMissing);
             } catch (final IOException e) {
                 JavaFXHelper.openErrorAlert(e);
             }
@@ -258,10 +345,63 @@ public class IslandManagerController {
         }
 
         try {
-            saveManager.openSaveEditorFor(Application.PRIMARY_STAGE, saveMetadata.nhsmIslandDirectory(saveManager.getAppProperties()).toPath());
+            final File islandSaveDirectory = saveMetadata.nhsmIslandDirectory(saveManager.getAppProperties());
+            final String islandName = islandSaveDirectory.getName();
+            saveManager.openSaveEditorFor(islandSaveDirectory, islandName, this::promptNHSEMissing, this::promptSelectNHSE, this::notifyMainDatMissing);
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
         }
+    }
+
+    private void notifyMainDatMissing(final String islandName) {
+        final Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setContentText("The '" + islandName + "' island does not have a main.dat file, so the Save Editor cannot open.");
+        alert.setHeaderText("Cannot use Save Editor");
+        alert.initOwner(Application.PRIMARY_STAGE);
+        alert.showAndWait();
+    }
+
+    private boolean promptNHSEMissing() throws IOException {
+        final Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setContentText("Your previously chosen directory for the NHSE executable no longer exists or the executable is missing. Next prompt will have you select the directory again.");
+        alert.setHeaderText("Re-select NHSE directory");
+        alert.initOwner(Application.PRIMARY_STAGE);
+        alert.showAndWait();
+        return promptSelectNHSE();
+    }
+
+    private boolean promptSelectNHSE() throws IOException {
+        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Set NHSE Executable Directory");
+        alert.setContentText("In order to edit the save data of an island, you must select the directory of your NHSE executable. Press OK to select the directory or cancel to stop.");
+        alert.setHeaderText("Select the NHSE directory to proceed");
+        alert.initOwner(Application.PRIMARY_STAGE);
+        final Optional<ButtonType> type = alert.showAndWait();
+
+        if (type.isPresent() && type.get() == ButtonType.OK) {
+            final DirectoryChooser directoryChooser = new DirectoryChooser();
+            final File selectedDirectory = directoryChooser.showDialog(Application.PRIMARY_STAGE);
+
+            if (selectedDirectory != null) {
+                final File executable = new File(selectedDirectory, AppPaths.NHSE_EXECUTABLE);
+
+                if (executable.exists()) {
+                    saveManager.setAndWriteAppProperties(saveManager.getAppProperties().copy().nhsExecutable(executable).build());
+                    return true;
+                }
+
+                final Alert exeMissing = new Alert(Alert.AlertType.WARNING);
+                exeMissing.setTitle("Warning");
+                exeMissing.setContentText("The selected directory does not contain an NHSE executable with the following name: " + AppPaths.NHSE_EXECUTABLE);
+                exeMissing.setHeaderText("Cannot use Save Editor");
+                exeMissing.initOwner(Application.PRIMARY_STAGE);
+                exeMissing.showAndWait();
+            }
+        }
+
+        return false;
     }
 
     @FXML

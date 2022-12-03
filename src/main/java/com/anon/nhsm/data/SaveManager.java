@@ -1,20 +1,11 @@
 package com.anon.nhsm.data;
 
 import com.anon.nhsm.AppProperties;
-import com.anon.nhsm.app.Application;
 import com.anon.nhsm.Main;
-import com.anon.nhsm.controllers.EditIslandController;
-import com.anon.nhsm.controllers.EmulatorLocalSaveController;
+import com.anon.nhsm.app.Application;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,8 +16,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -84,49 +73,31 @@ public class SaveManager {
         extractIslands();
     }
 
-    public boolean promptToConvertLocalSaveIntoIslands(final File localSaveMetadataFile) throws IOException {
-        logger.info("Prompting to convert emulator local save into an island");
-        final FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(EmulatorLocalSaveController.class.getResource("emulator_local_save.fxml"));
-        final DialogPane newIslandDialogPane = fxmlLoader.load();
-
-        final EmulatorLocalSaveController controller = fxmlLoader.getController();
-
-        final Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setDialogPane(newIslandDialogPane);
-        dialog.setTitle("Name your Emulator Local Save as an Island");
-        dialog.initOwner(Application.PRIMARY_STAGE);
-
-        final Optional<ButtonType> clickedbutton = dialog.showAndWait();
-
-        if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
-            final SaveMetadata newMetadata = new SaveMetadata(controller.getIslandName(), controller.getIslandDescription(), new Date(), false);
-
-            logger.info("Creating new metadata for converting Emulator Local Save: " + newMetadata);
-            if (!verifyMetadataNameChange("Could not convert 'Emulator Local Save' to list of Islands", newMetadata)) {
-                logger.info("Could not write metadata file to Emulator Local Save directory because of name conflict: " + newMetadata.island() + " already exists");
-                return false;
-            }
-
-            writeMetadataFile(localSaveMetadataFile, newMetadata);
-            logger.info("Written metadata file to emulator local save: " + localSaveMetadataFile.getAbsolutePath());
-            return true;
-        }
-
-        return false;
+    public boolean verifyHasNoNameConflict(final SaveMetadata metadata) {
+        final File checkIfExistsAlready = new File(appProperties.islandsDirectory(), metadata.island());
+        return !checkIfExistsAlready.exists();
     }
 
-    public boolean verifyMetadataNameChange(final String headerError, final SaveMetadata metadata) {
-        final File checkIfExistsAlready = new File(appProperties.islandsDirectory(), metadata.island());
-        if (checkIfExistsAlready.exists()) {
-            showNamingConflictWarning(headerError, metadata.island());
-            logger.info(headerError);
+    @FunctionalInterface
+    public interface ConvertLocalSaveIntoIsland {
+        boolean tryConvert(final File localSaveMetadataFile) throws IOException;
+    }
+    public boolean convertLocalSaveToIsland(final File metadataFile, final String islandName, final String islandDescription, final OnNamingConflict onNamingConflict) throws IOException {
+        final SaveMetadata newMetadata = new SaveMetadata(islandName, islandDescription, new Date(), false);
+
+        logger.info("Creating new metadata for converting Emulator Local Save: " + newMetadata);
+        if (!verifyHasNoNameConflict(newMetadata)) {
+            onNamingConflict.apply(newMetadata);
+            logger.info("Could not write metadata file to Emulator Local Save directory because of name conflict: " + newMetadata.island() + " already exists");
             return false;
         }
+
+        writeMetadataFile(metadataFile, newMetadata);
+        logger.info("Written metadata file to emulator local save: " + metadataFile.getAbsolutePath());
         return true;
     }
 
-    public void swapWithLocalSave(final SaveMetadata islandMetadata) throws IOException {
+    public void swapWithLocalSave(final SaveMetadata islandMetadata, final ConvertLocalSaveIntoIsland onLocalSaveMetadataMissing) throws IOException {
         final File nhsmIslandDirectory = islandMetadata.nhsmIslandDirectory(appProperties);
         logger.info("Attempting to swap the contents of the '" + islandMetadata.island() + "' island with the emulator local save");
         if (!config.emulatorSaveDirectory().exists() && config.emulatorSaveDirectory().mkdirs()) {
@@ -135,22 +106,22 @@ public class SaveManager {
         } else {
             final File localSaveMetadataFile = new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE_NAME);
 
-            if (!localSaveMetadataFile.exists() && !promptToConvertLocalSaveIntoIslands(localSaveMetadataFile)) {
+            if (!localSaveMetadataFile.exists() && !onLocalSaveMetadataMissing.tryConvert(localSaveMetadataFile)) {
                 return;
             }
 
             final SaveMetadata localSaveMetadata = readMetdataFile(localSaveMetadataFile);
 
             if (localSaveMetadata != null) {
-                final Path tmpPath = Paths.get(FileUtils.getTempDirectory().toString(), UUID.randomUUID().toString());
+                final File tmpDirectory = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
 
                 // Deleting tmpPath if it exists, then creating it
-                if (tmpPath.toFile().exists()) {
-                    FileUtils.deleteDirectory(tmpPath.toFile());
+                if (tmpDirectory.exists()) {
+                    FileUtils.deleteDirectory(tmpDirectory);
                 }
-                Files.createDirectories(tmpPath);
+                Files.createDirectories(tmpDirectory.toPath());
 
-                final File tmpIslandDir = new File(tmpPath.toFile(), localSaveMetadata.island());
+                final File tmpIslandDir = new File(tmpDirectory, localSaveMetadata.island());
 
                 // Update metadata with new date timestmap
                 writeMetadataFile(new File(config.emulatorSaveDirectory(), AppPaths.SAVE_METADATA_FILE_NAME), localSaveMetadata.date(new Date()));
@@ -174,8 +145,8 @@ public class SaveManager {
                 logger.info("Move all contents from the temp island directory to the island directory the local save file was from: " + localSaveNhsmIslandDirectory.getAbsolutePath());
                 FileUtils.moveDirectory(tmpIslandDir, localSaveNhsmIslandDirectory);
 
-                logger.info("Delete the temp directory: " + tmpPath.toFile().getAbsolutePath());
-                FileUtils.deleteDirectory(tmpPath.toFile());
+                logger.info("Delete the temp directory: " + tmpDirectory.getAbsolutePath());
+                FileUtils.deleteDirectory(tmpDirectory);
 
                 this.emulatorSaveMetadata = islandMetadata;
                 extractIslands();
@@ -236,46 +207,7 @@ public class SaveManager {
         }
     }
 
-    public void showNamingConflictWarning(final String headerText, final String newIslandName) {
-        final Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
-        alert.setContentText("The name '" + newIslandName + "' you tried to give for this island already exists.");
-        alert.setHeaderText(headerText);
-        alert.initOwner(Application.PRIMARY_STAGE);
-        alert.showAndWait();
-    }
-
-    public SaveMetadata editIslandDetails(final SaveMetadata oldSaveMetadata) throws IOException {
-        try {
-            logger.info("Handling edit of" + oldSaveMetadata.island());
-            final FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(EditIslandController.class.getResource("edit_island.fxml"));
-            final DialogPane newIslandDialogPane = fxmlLoader.load();
-            final EditIslandController controller = fxmlLoader.getController();
-            controller.setIslandName(oldSaveMetadata.island());
-            controller.setIslandDescription(oldSaveMetadata.description());
-
-            final Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setDialogPane(newIslandDialogPane);
-            dialog.setTitle("Edit '" + oldSaveMetadata.island() + "' Island");
-            dialog.initOwner(Application.PRIMARY_STAGE);
-
-            final Optional<ButtonType> clickedbutton = dialog.showAndWait();
-
-            if (clickedbutton.isPresent() && clickedbutton.get() == ButtonType.FINISH) {
-                final SaveMetadata updatedSaveMetadata = createSaveData(controller.getIslandName(), controller.getIslandDescription());
-                if (updateIslandDetails(oldSaveMetadata, updatedSaveMetadata)) {
-                    return updatedSaveMetadata;
-                }
-            }
-        } catch (final IOException e) {
-            throw new IOException("Something went wrong editing the details of an island.", e);
-        }
-
-        return oldSaveMetadata;
-    }
-
-    public boolean updateIslandDetails(final SaveMetadata oldSaveMetadata, final SaveMetadata newSaveMetadata) throws IOException {
+    public boolean updateIslandDetails(final SaveMetadata oldSaveMetadata, final SaveMetadata newSaveMetadata, final OnNamingConflict onNamingConflict) throws IOException {
         logger.info("Updating island details from: '" + oldSaveMetadata.island() + "' into: '" + newSaveMetadata.island() + "'");
         final File oldSaveDir = oldSaveMetadata.nhsmIslandDirectory(appProperties);
         final File newSaveDir = newSaveMetadata.nhsmIslandDirectory(appProperties);
@@ -283,7 +215,7 @@ public class SaveManager {
         try {
             if (!oldSaveMetadata.island().equals(newSaveMetadata.island())) {
                 if (newSaveDir.exists()) {
-                    showNamingConflictWarning("Could not edit '" + oldSaveMetadata.island() + "' island", newSaveMetadata.island());
+                    onNamingConflict.apply(newSaveMetadata);
                     logger.info("Could not edit '" + oldSaveMetadata.island() + "' island since the new name '" + newSaveMetadata.island() + "' already exists");
                     return false;
                 }
@@ -302,7 +234,7 @@ public class SaveManager {
         return true;
     }
 
-    public boolean createNewIsland(final String islandName, final String islandDescription) throws IOException {
+    public boolean createNewIsland(final String islandName, final String islandDescription, final OnNamingConflict onNamingConflict) throws IOException {
         final File newIslandDir = new File(appProperties.islandsDirectory(), islandName);
         logger.info("Creating new island: " + islandName + ", with description: " + islandDescription);
 
@@ -310,7 +242,8 @@ public class SaveManager {
             final File newIslandMetadata = new File(newIslandDir, AppPaths.SAVE_METADATA_FILE_NAME);
             final SaveMetadata metadata = new SaveMetadata(islandName, islandDescription, new Date(), false);
 
-            if (!verifyMetadataNameChange("Could not create new '" + metadata.island() + "' island", metadata)) {
+            if (!verifyHasNoNameConflict(metadata)) {
+                onNamingConflict.apply(metadata);
                 return false;
             }
 
@@ -323,7 +256,12 @@ public class SaveManager {
         return true;
     }
 
-    public void duplicateIsland(final SaveMetadata islandToDuplicate) throws IOException {
+    @FunctionalInterface
+    public interface OnNamingConflict {
+        void apply(final SaveMetadata conflictingMetadata);
+    }
+
+    public boolean duplicateIsland(final SaveMetadata islandToDuplicate, final OnNamingConflict onNamingConflict) throws IOException {
         final String copiedName = islandToDuplicate.island().replaceFirst("(\\.[^.]*)?$", "-copy$0");
         logger.info("Duplicating island: " + islandToDuplicate.island() + ", duplicated island name will be: " + copiedName);
 
@@ -333,8 +271,9 @@ public class SaveManager {
         try {
             final SaveMetadata duplicateIslandMetadata = new SaveMetadata(copiedName, islandToDuplicate.description(), new Date(), false);
 
-            if (!verifyMetadataNameChange("Could not duplicate '" + duplicateIslandMetadata.island() + "' island", duplicateIslandMetadata)) {
-                return;
+            if (!verifyHasNoNameConflict(duplicateIslandMetadata)) {
+                onNamingConflict.apply(duplicateIslandMetadata);
+                return false;
             }
 
             FileUtils.forceMkdir(duplicateIslandDir);
@@ -343,10 +282,10 @@ public class SaveManager {
             final File metadata = new File(duplicateIslandDir, AppPaths.SAVE_METADATA_FILE_NAME);
             writeMetadataFile(metadata, duplicateIslandMetadata);
             extractIslands();
+            return true;
         } catch (final IOException e) {
             throw new IOException("Could not create duplicate island and save to: " + duplicateIslandDir.getAbsolutePath() + ", for new duplicate island: " + copiedName, e);
         }
-
     }
 
     public void deleteIsland(final SaveMetadata saveMetadata) throws IOException {
@@ -360,81 +299,36 @@ public class SaveManager {
         }
     }
 
-    private boolean promptSelectNHSEExecutable(final Stage primaryStage) throws IOException {
-        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Set NHSE Executable Directory");
-        alert.setContentText("In order to edit the save data of an island, you must select the directory of your NHSE executable. Press OK to select the directory or cancel to stop.");
-        alert.setHeaderText("Select the NHSE directory to proceed");
-        alert.initOwner(Application.PRIMARY_STAGE);
-        final Optional<ButtonType> type = alert.showAndWait();
-
-        if (type.isPresent() && type.get() == ButtonType.OK) {
-            final DirectoryChooser directoryChooser = new DirectoryChooser();
-            final File selectedDirectory = directoryChooser.showDialog(primaryStage);
-
-            if (selectedDirectory != null) {
-                final File executable = new File(selectedDirectory, AppPaths.NHSE_EXECUTABLE);
-
-                if (executable.exists()) {
-                    setAndWriteAppProperties(this.appProperties.copy().nhsExecutable(executable).build());
-                    return true;
-                }
-
-                final Alert exeMissing = new Alert(Alert.AlertType.WARNING);
-                exeMissing.setTitle("Warning");
-                exeMissing.setContentText("The selected directory does not contain an NHSE executable with the following name: " + AppPaths.NHSE_EXECUTABLE);
-                exeMissing.setHeaderText("Cannot use Save Editor");
-                exeMissing.initOwner(Application.PRIMARY_STAGE);
-                exeMissing.showAndWait();
-            }
-        }
-
-        return false;
+    @FunctionalInterface
+    public interface TrySelectExecutable {
+        boolean trySelect() throws IOException;
     }
 
-    public void openSaveEditorFor(final Stage primaryStage, final Path islandDirectory) throws IOException {
-        if (appProperties.nhsExecutable() == null) {
-            if (!promptSelectNHSEExecutable(primaryStage)) {
-                return;
-            }
-        } else {
-            if (!appProperties.nhsExecutable().exists()) {
-                final Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Warning");
-                alert.setContentText("Your previously chosen directory for the NHSE executable no longer exists or the executable is missing. Next prompt will have you select the directory again.");
-                alert.setHeaderText("Re-select NHSE directory");
-                alert.initOwner(Application.PRIMARY_STAGE);
-                alert.showAndWait();
+    @FunctionalInterface
+    public interface MainDatMissing {
+        void apply(final String islandName);
+    }
 
-                if (!promptSelectNHSEExecutable(primaryStage)) {
-                    return;
-                }
-            }
+    public void openSaveEditorFor(final File islandSaveDirectory, final String islandName, final TrySelectExecutable onExecutableMissing, final TrySelectExecutable onExecutableNotSelectedYet, final MainDatMissing onMainDatMissing) throws IOException {
+        if (appProperties.nhsExecutable() == null && !onExecutableNotSelectedYet.trySelect()) {
+            return;
+        } else if (!appProperties.nhsExecutable().exists() && !onExecutableMissing.trySelect()) {
+            return;
         }
 
         try {
-            final Path mainDat = islandDirectory.resolve(AppPaths.MAIN_DAT);
+            final File mainDat = new File(islandSaveDirectory, AppPaths.MAIN_DAT);
 
-            if (mainDat.toFile().exists()) {
+            if (mainDat.exists()) {
                 Application.ANCHOR_PANE.setDisable(true);
                 final Process process = new ProcessBuilder(appProperties.nhsExecutable().getAbsolutePath(), mainDat.toString()).start();
                 process.onExit().thenAccept(p -> Application.ANCHOR_PANE.setDisable(false));
             } else {
-                final Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Warning");
-                alert.setContentText("The '" + islandDirectory.toFile().getName() + "' island does not have a main.dat file, so the Save Editor cannot open.");
-                alert.setHeaderText("Cannot use Save Editor");
-                alert.initOwner(Application.PRIMARY_STAGE);
-                alert.showAndWait();
+                onMainDatMissing.apply(islandName);
             }
         } catch (final IOException e) {
             throw new IOException("Something went wrong when starting the NHSE process.", e);
         }
-
-    }
-
-    public SaveMetadata createSaveData(final String islandName, final String islandDescription) {
-        return new SaveMetadata(islandName, islandDescription, new Date(), false);
     }
 
     public void writeMetadataFile(final File file, final SaveMetadata saveMetadata) throws IOException {
