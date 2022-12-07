@@ -21,6 +21,8 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,25 +103,25 @@ public class EmulatorSelectorController {
         });
 
         if (appProperties.yuzuSaveDirectory() != null) {
-            currentSaveDirectoryTextYuzu.setText(appProperties.yuzuSaveDirectory().getAbsolutePath());
+            currentSaveDirectoryTextYuzu.setText(appProperties.yuzuSaveDirectory().toAbsolutePath().toString());
         }
 
         if (appProperties.ryujinxSaveDirectory() != null) {
-            currentSaveDirectoryTextRyujinx.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath());
+            currentSaveDirectoryTextRyujinx.setText(appProperties.ryujinxSaveDirectory().toAbsolutePath().toString());
         }
 
         menuToEmulatorData.put(sideMenuRyujinx, ryujinxEmulator);
         menuToEmulatorData.put(sideMenuYuzu,yuzuEmulator);
     }
 
-    private void updateYuzuSaveDirectory(final File directory) throws IOException {
+    private void updateYuzuSaveDirectory(final Path directory) throws IOException {
         appProperties = Main.writeAppProperties(appProperties.copy().yuzuSaveDirectory(directory).build());
-        currentSaveDirectoryTextYuzu.setText(appProperties.yuzuSaveDirectory().getAbsolutePath());
+        currentSaveDirectoryTextYuzu.setText(directory.toAbsolutePath().toString());
     }
 
-    private void updateRyujinxSaveDirectory(final File directory) throws IOException {
+    private void updateRyujinxSaveDirectory(final Path directory) throws IOException {
         appProperties = Main.writeAppProperties(appProperties.copy().ryujinxSaveDirectory(directory).build());
-        currentSaveDirectoryTextRyujinx.setText(appProperties.ryujinxSaveDirectory().getAbsolutePath());
+        currentSaveDirectoryTextRyujinx.setText(directory.toAbsolutePath().toString());
         buttonOpenSavesManager.setDisable(!selectedEmulator.isViable());
     }
 
@@ -166,10 +168,10 @@ public class EmulatorSelectorController {
     }
 
     private File tryGetRyujinxSavesDirectory() {
-        final File homeDirectory = AppPaths.createRyujinxSavesDirectory();
+        final Path homeDirectory = AppPaths.createRyujinxSavesDirectory();
 
-        if (homeDirectory.exists() && homeDirectory.isDirectory()) {
-            return homeDirectory;
+        if (Files.exists(homeDirectory) && Files.isDirectory(homeDirectory)) {
+            return homeDirectory.toFile();
         }
 
         return null;
@@ -205,6 +207,6 @@ public class EmulatorSelectorController {
             alert.showAndWait();
         }
 
-        updateRyujinxSaveDirectory(selectedDirectory);
+        updateRyujinxSaveDirectory(selectedDirectory.toPath());
     }
 }

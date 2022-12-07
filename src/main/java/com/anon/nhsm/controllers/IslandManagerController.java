@@ -21,6 +21,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 public class IslandManagerController {
@@ -58,11 +60,11 @@ public class IslandManagerController {
     public void init(final SaveManager saveManager) {
         this.saveManager = saveManager;
         island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + getIslandSuffix(p.getValue())));
-        folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().nhsmIslandDirectory(saveManager.getAppProperties()).getAbsolutePath()));
+        folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().islandDirectory(saveManager.getAppProperties()).toAbsolutePath().toString()));
         description.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
         date.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
         localIsland.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island()));
-        localFolder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().nhsmIslandDirectory(saveManager.getAppProperties()).getAbsolutePath()));
+        localFolder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().islandDirectory(saveManager.getAppProperties()).toAbsolutePath().toString()));
         localDescription.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
         localDate.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().date().toString()));
 
@@ -92,12 +94,12 @@ public class IslandManagerController {
             final Optional<ButtonType> clickedButton = Alerts.promptNewIsland(newIslandDialogPane);
 
             if (clickedButton.isPresent() && clickedButton.get() == ButtonType.FINISH) {
-                final boolean createdNewIsland = saveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription(), conflictingMetadata -> {
+                final Optional<SaveMetadata> newIslandMetadata = saveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription(), conflictingMetadata -> {
                     final String islandName = conflictingMetadata.island();
                     Alerts.notifyNamingConflict("Could not create new '" + islandName + "' island", islandName);
                 });
 
-                if (createdNewIsland) {
+                if (newIslandMetadata.isPresent()) {
                     refreshIslandTables();
                 }
             }
@@ -134,7 +136,7 @@ public class IslandManagerController {
         }
     }
 
-    public boolean promptToConvertLocalSaveIntoIsland(final File localSaveMetadataFile) throws IOException {
+    public boolean promptToConvertLocalSaveIntoIsland(final Path localSaveMetadataFile) throws IOException {
         logger.info("Prompting to convert emulator local save into an island");
         final FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(EmulatorLocalSaveController.class.getResource("emulator_local_save.fxml"));
@@ -187,12 +189,12 @@ public class IslandManagerController {
         }
 
         try {
-            final boolean duplicatedIsland = saveManager.duplicateIsland(saveMetadata, conflictingMetadata -> {
+            final Optional<SaveMetadata> duplicatedIsland = saveManager.duplicateIsland(saveMetadata, conflictingMetadata -> {
                 final String islandName = conflictingMetadata.island();
                 Alerts.notifyNamingConflict("Could not duplicate '" + islandName + "' island", islandName);
             });
 
-            if (duplicatedIsland) {
+            if (duplicatedIsland.isPresent()) {
                 refreshIslandTables();
             }
         } catch (final IOException e) {
@@ -254,7 +256,7 @@ public class IslandManagerController {
 
         if (clickedButton.isPresent() && clickedButton.get() == ButtonType.OK) {
             try {
-                final File islandSaveDirectory = saveManager.getConfig().emulatorSaveDirectory();
+                final Path islandSaveDirectory = saveManager.getConfig().emulatorSaveDirectory();
                 final String islandName = saveManager.getEmulatorSaveMetadata().island();
                 saveManager.openSaveEditorFor(islandSaveDirectory, islandName, this::trySelectNHSEAfterMissing, this::trySelectNHSE, Alerts::notifyMainDatMissing);
             } catch (final IOException e) {
@@ -276,8 +278,8 @@ public class IslandManagerController {
         }
 
         try {
-            final File islandSaveDirectory = saveMetadata.nhsmIslandDirectory(saveManager.getAppProperties());
-            final String islandName = islandSaveDirectory.getName();
+            final Path islandSaveDirectory = saveMetadata.islandDirectory(saveManager.getAppProperties());
+            final String islandName = islandSaveDirectory.getFileName().toString();
             saveManager.openSaveEditorFor(islandSaveDirectory, islandName, this::trySelectNHSEAfterMissing, this::trySelectNHSE, Alerts::notifyMainDatMissing);
         } catch (final IOException e) {
             JavaFXHelper.openErrorAlert(e);
@@ -297,9 +299,9 @@ public class IslandManagerController {
             final File selectedDirectory = directoryChooser.showDialog(Application.PRIMARY_STAGE);
 
             if (selectedDirectory != null) {
-                final File executable = new File(selectedDirectory, AppPaths.NHSE_EXECUTABLE);
+                final Path executable = selectedDirectory.toPath().resolve(AppPaths.NHSE_EXECUTABLE);
 
-                if (executable.exists()) {
+                if (Files.exists(executable)) {
                     saveManager.setAndWriteAppProperties(saveManager.getAppProperties().copy().nhsExecutable(executable).build());
                     return true;
                 }

@@ -1,19 +1,19 @@
 package com.anon.nhsm;
 
-import com.anon.nhsm.data.EmulatorType;
 import com.anon.nhsm.data.AppPaths;
+import com.anon.nhsm.data.EmulatorType;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-public record AppProperties(File islandsDirectory, File nhsExecutable, File ryujinxSaveDirectory, File yuzuSaveDirectory, EmulatorType emulatorTarget) {
+public record AppProperties(Path islandsDirectory, Path nhsExecutable, Path ryujinxSaveDirectory, Path yuzuSaveDirectory, EmulatorType emulatorTarget) {
     public static Builder builder() {
         return new Builder();
     }
@@ -23,10 +23,10 @@ public record AppProperties(File islandsDirectory, File nhsExecutable, File ryuj
     }
 
     public static class Builder {
-        private File islandsDirectory;
-        private File nhsExecutable;
-        private File ryujinxSaveDirectory;
-        private File yuzuSaveDirectory;
+        private Path islandsDirectory;
+        private Path nhsExecutable;
+        private Path ryujinxSaveDirectory;
+        private Path yuzuSaveDirectory;
         private EmulatorType emulatorTarget;
 
         private Builder() {
@@ -41,22 +41,22 @@ public record AppProperties(File islandsDirectory, File nhsExecutable, File ryuj
             emulatorTarget = copyFrom.emulatorTarget;
         }
 
-        public Builder islandsDirectory(final File path) {
+        public Builder islandsDirectory(final Path path) {
             islandsDirectory = path;
             return this;
         }
 
-        public Builder nhsExecutable(final File path) {
+        public Builder nhsExecutable(final Path path) {
             nhsExecutable = path;
             return this;
         }
 
-        public Builder ryujinxSaveDirectory(final File path) {
+        public Builder ryujinxSaveDirectory(final Path path) {
             ryujinxSaveDirectory = path;
             return this;
         }
 
-        public Builder yuzuSaveDirectory(final File path) {
+        public Builder yuzuSaveDirectory(final Path path) {
             yuzuSaveDirectory = path;
             return this;
         }
@@ -80,15 +80,15 @@ public record AppProperties(File islandsDirectory, File nhsExecutable, File ryuj
             if (properties != null) { // Validate file paths and remove if no longer exist
                 final AppProperties.Builder validationBuilder = properties.copy();
 
-                if (properties.nhsExecutable() != null && !properties.nhsExecutable().exists()) {
+                if (properties.nhsExecutable() != null && !Files.exists(properties.nhsExecutable())) {
                     validationBuilder.nhsExecutable(null);
                 }
 
-                if (properties.ryujinxSaveDirectory() != null && !properties.ryujinxSaveDirectory().exists()) {
+                if (properties.ryujinxSaveDirectory() != null && !Files.exists(properties.ryujinxSaveDirectory())) {
                     validationBuilder.ryujinxSaveDirectory(null);
                 }
 
-                if (properties.yuzuSaveDirectory() != null && !properties.yuzuSaveDirectory().exists()) {
+                if (properties.yuzuSaveDirectory() != null && !Files.exists(properties.yuzuSaveDirectory())) {
                     validationBuilder.yuzuSaveDirectory(null);
                 }
 
@@ -103,36 +103,36 @@ public record AppProperties(File islandsDirectory, File nhsExecutable, File ryuj
             return properties;
         }
 
-        public static AppProperties readAppPropertiesFile(final File file) throws IOException {
-            if (file.exists()) {
-                try (final FileReader fileReader = new FileReader(file)) {
+        public static AppProperties readAppPropertiesFile(final Path file) throws IOException {
+            if (Files.exists(file)) {
+                try (final FileReader fileReader = new FileReader(file.toFile())) {
                     final Type type = new TypeToken<AppProperties>(){}.getType();
                     final Gson gson = Main.GSON.create();
                     return gson.fromJson(fileReader, type);
                 } catch (final IOException e) {
-                    throw new IOException("Could not read Save Manager properties from file: " + file.getAbsolutePath(), e);
+                    throw new IOException("Could not read Save Manager properties from file: " + file.toAbsolutePath(), e);
                 }
             }
 
             return null;
         }
 
-        public static void writeAppPropertiesFile(final File file, final AppProperties properties) throws IOException {
+        public static void writeAppPropertiesFile(final Path path, final AppProperties properties) throws IOException {
             try {
-                if (file.exists()) {
-                    FileUtils.delete(file);
-                }
+                Files.deleteIfExists(path);
             } catch (final IOException e) {
-                throw new IOException("Could not delete old Save Manager properties file: " + file.getAbsolutePath(), e);
+                throw new IOException("Could not delete old Save Manager properties file: " + path.toAbsolutePath(), e);
             }
 
-            try (final FileWriter fileWriter = new FileWriter(file)) {
+            Files.createDirectories(path.getParent());
+            Files.createFile(path);
+            try (final FileWriter fileWriter = new FileWriter(path.toFile())) {
                 final Gson gson = Main.GSON.create();
                 final JsonElement jsonElement = gson.toJsonTree(properties);
                 jsonElement.getAsJsonObject().addProperty("version", Main.DATA_VERSION.toString());
                 gson.toJson(jsonElement, fileWriter);
             } catch (final IOException e) {
-                throw new IOException("Could not write Save Manager properties to file: " + file.getAbsolutePath(), e);
+                throw new IOException("Could not write Save Manager properties to file: " + path.toAbsolutePath(), e);
             }
         }
     }
