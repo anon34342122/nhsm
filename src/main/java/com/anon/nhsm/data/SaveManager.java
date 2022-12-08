@@ -360,7 +360,7 @@ public class SaveManager {
                 jsonElement.getAsJsonObject().addProperty("version", Main.DATA_VERSION.toString());
                 jsonElement.getAsJsonObject().remove("emulatorLocked");
                 gson.toJson(jsonElement, fileWriter);
-            } catch (final IOException e) {
+            } catch (final IOException | JsonIOException e) {
                 throw new IOException("Could not write metadata to file: " + path.toAbsolutePath() + ", for island: " + saveMetadata.island(), e);
             }
         }
@@ -373,7 +373,7 @@ public class SaveManager {
                 final Type type = new TypeToken<SaveMetadata>(){}.getType();
                 final Gson gson = Main.GSON.create();
                 return gson.fromJson(fileReader, type);
-            } catch (final IOException e) {
+            } catch (final IOException | JsonIOException e) {
                 throw new IOException("Could not read metadata from file: " + file.toAbsolutePath().toString(), e);
             }
         }

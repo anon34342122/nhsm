@@ -4,6 +4,7 @@ import com.anon.nhsm.data.AppPaths;
 import com.anon.nhsm.data.EmulatorType;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.FileReader;
@@ -131,7 +132,7 @@ public record AppProperties(Path islandsDirectory, Path nhsExecutable, Path ryuj
                 final JsonElement jsonElement = gson.toJsonTree(properties);
                 jsonElement.getAsJsonObject().addProperty("version", Main.DATA_VERSION.toString());
                 gson.toJson(jsonElement, fileWriter);
-            } catch (final IOException e) {
+            } catch (final IOException | JsonIOException e) {
                 throw new IOException("Could not write Save Manager properties to file: " + path.toAbsolutePath(), e);
             }
         }
