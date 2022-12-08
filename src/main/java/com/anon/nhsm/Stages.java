@@ -19,13 +19,14 @@ public class Stages {
         final Stage stage = Application.PRIMARY_STAGE;
         final URL view = EmulatorSelectorController.class.getResource("emulator_selector.fxml");
         final FXMLLoader fxmlLoader = new FXMLLoader(view);
+        fxmlLoader.setResources(Application.LANG.getResourceBundle());
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
         stage.setTitle(Main.APPLICATION_NAME);
         stage.setScene(scene);
         JavaFXHelper.setStageIcon(stage, Application.class, "app_icon.png");
         final EmulatorSelectorController controller = fxmlLoader.getController();
-        controller.init(appProperties);
+        controller.init(appProperties, Application.LANG);
         Application.ANCHOR_PANE = controller.getAnchorPane();
         stage.show();
     }
@@ -44,16 +45,22 @@ public class Stages {
 
     public static void showIslandManager(final AppProperties appProperties) throws IOException {
         final SaveManager saveManager = createSaveManager(appProperties);
+
+        if (saveManager == null) {
+            return;
+        }
+
         final Stage stage = Application.PRIMARY_STAGE;
         final URL view = IslandManagerController.class.getResource("island_manager.fxml");
         final FXMLLoader fxmlLoader = new FXMLLoader(view);
+        fxmlLoader.setResources(Application.LANG.getResourceBundle());
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
         stage.setTitle(Main.APPLICATION_NAME);
         stage.setScene(scene);
         JavaFXHelper.setStageIcon(stage, Application.class, "app_icon.png");
         final IslandManagerController controller = fxmlLoader.getController();
-        controller.init(saveManager);
+        controller.init(saveManager, Application.LANG);
         Application.ANCHOR_PANE = controller.getAnchorPane();
         stage.show();
     }

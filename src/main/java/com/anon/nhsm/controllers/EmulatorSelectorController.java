@@ -1,6 +1,7 @@
 package com.anon.nhsm.controllers;
 
 import com.anon.nhsm.AppProperties;
+import com.anon.nhsm.LanguageMap;
 import com.anon.nhsm.Main;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.app.Application;
@@ -10,6 +11,7 @@ import com.anon.nhsm.data.EmulatorType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -30,7 +32,7 @@ import java.util.function.BooleanSupplier;
 
 public class EmulatorSelectorController {
     private AppProperties appProperties;
-
+    private LanguageMap lang;
     @FXML private AnchorPane ap;
     @FXML private VBox contentAreaNoSelection;
     @FXML private Pane contentAreaRyujinx;
@@ -40,6 +42,8 @@ public class EmulatorSelectorController {
     @FXML private Button buttonOpenSavesManager;
     @FXML private Text currentSaveDirectoryTextRyujinx;
     @FXML private Text currentSaveDirectoryTextYuzu;
+    @FXML private TextArea yuzuTextArea;
+    @FXML private TextArea ryujinxTextArea;
 
     private List<Pane> contentAreas;
     private Map<HBox, EmulatorContentArea> menuToEmulatorData;
@@ -84,7 +88,8 @@ public class EmulatorSelectorController {
         return ap;
     }
 
-    public void init(final AppProperties appProperties) {
+    public void init(final AppProperties appProperties, final LanguageMap lang) {
+        this.lang = lang;
         this.appProperties = appProperties;
         contentAreas = List.of(contentAreaNoSelection, contentAreaRyujinx, contentAreaYuzu);
         menuToEmulatorData = new IdentityHashMap<>();
@@ -112,6 +117,9 @@ public class EmulatorSelectorController {
 
         menuToEmulatorData.put(sideMenuRyujinx, ryujinxEmulator);
         menuToEmulatorData.put(sideMenuYuzu,yuzuEmulator);
+
+        yuzuTextArea.setText(lang.get("yuzu_text_area"));
+        ryujinxTextArea.setText(lang.get("ryujinx_text_area"));
     }
 
     private void updateYuzuSaveDirectory(final Path directory) throws IOException {
@@ -188,9 +196,9 @@ public class EmulatorSelectorController {
 
         if (!selectedDirectory.getName().equals("0")) {
             final Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Warning");
-            alert.setContentText("The selected directory is incorrect - please select a directory called '0' in your Ryujinx directory. It should look something like 'Ryujinx/bis/user/save/0000000000000001/0'.");
-            alert.setHeaderText("Invalid Save Directory");
+            alert.setTitle(lang.get("alerts.incorrect_directory.title"));
+            alert.setContentText(lang.get("alerts.incorrect_directory.content"));
+            alert.setHeaderText(lang.get("alerts.incorrect_directory.header"));
             alert.initOwner(Application.PRIMARY_STAGE);
             alert.showAndWait();
             return;
@@ -200,9 +208,9 @@ public class EmulatorSelectorController {
 
         if (!mainDatFile.exists()) {
             final Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setContentText("The selected directory does not contain a 'main.dat' file. This is not an error and the directory will be used, but make sure to double check that this is indeed the Animal Crossing: New Horizons save directory.");
-            alert.setHeaderText("Keep in mind");
+            alert.setTitle(lang.get("alerts.no_main_dat.title"));
+            alert.setContentText(lang.get("alerts.no_main_dat.content"));
+            alert.setHeaderText(lang.get("alerts.no_main_dat.header"));
             alert.initOwner(Application.PRIMARY_STAGE);
             alert.showAndWait();
         }

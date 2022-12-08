@@ -32,7 +32,7 @@
                <children>
                   <VBox fx:id="contentAreaNoSelection" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Label text="Select the emulator you are using to play Animal Crossing: New Horizons">
+                        <Label text="%select_emulator">
                            <font>
                               <Font size="16.0" />
                            </font></Label>
@@ -56,19 +56,19 @@
                               </HBox>
                               <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <TextArea editable="false" prefHeight="359.0" prefWidth="571.0" text="Due to the non-static directory structure of Ryujinx's save data, using it with NHSM requires you to specify the save directory of your Animal Crossing: New Horizon's game. This only needs to be done once, and will be remembered with future uses of NHSM.&#10;&#10;The folder should have a &quot;main.dat&quot; file inside, with the parent folder containing two folders &quot;0&quot; and &quot;1&quot;. You'll want to locate the &quot;0&quot; folder. The whole directory path usually looks something like this:&#10;&#10;Ryujinx\bis\user\save\0000000000000001\0&#10;&#10;&quot;0000000000000001&quot; folder is the part that will be different for everyone depending on when they installed and played Animal Crossing for the first time on the emulator." wrapText="true" VBox.vgrow="ALWAYS">
+                                    <TextArea fx:id="ryujinxTextArea" editable="false" prefHeight="359.0" prefWidth="571.0" wrapText="true" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
                                     </TextArea>
                                     <VBox prefHeight="0.0" prefWidth="100.0">
                                        <children>
-                                          <Text fill="#434343" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="label" text="Current Save Directory:" underline="true">
+                                          <Text fill="#434343" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="label" text="%current_save_directory" underline="true">
                                              <font>
                                                 <Font size="16.0" />
                                              </font>
                                           </Text>
-                                          <Text fx:id="currentSaveDirectoryTextRyujinx" fill="#6f6f6f" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="label" text="Not Defined Yet" wrappingWidth="570.0">
+                                          <Text fx:id="currentSaveDirectoryTextRyujinx" fill="#6f6f6f" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="label" text="%not_defined_yet" wrappingWidth="570.0">
                                              <font>
                                                 <Font size="16.0" />
                                              </font>
@@ -85,7 +85,7 @@
                               </VBox>
                               <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="NEVER">
                                  <children>
-                                    <Button fx:id="buttonLocateSaveDirectory" mnemonicParsing="false" onMousePressed="#handleLocateSaveDirectory" stylesheets="@../style.css" text="Locate Save Directory...">
+                                    <Button fx:id="buttonLocateSaveDirectory" mnemonicParsing="false" onMousePressed="#handleLocateSaveDirectory" stylesheets="@../style.css" text="%locate_save_directory">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
@@ -117,7 +117,7 @@
                               </HBox>
                               <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <TextArea editable="false" prefHeight="359.0" prefWidth="571.0" text="NHSM is able to automatically locate the save directory of your Animal Crossing: New Horizons game for the Yuzu emulator.&#10;&#10;Press &quot;Open with Saves Manager&quot; to begin using!" wrapText="true" VBox.vgrow="ALWAYS">
+                                    <TextArea fx:id="yuzuTextArea" editable="false" prefHeight="359.0" prefWidth="571.0" wrapText="true" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
@@ -157,7 +157,7 @@
                <children>
                   <HBox alignment="CENTER" prefHeight="70.0" prefWidth="498.0" styleClass="sideMenu" stylesheets="@../style.css">
                      <children>
-                        <Label styleClass="title" text="Supported Emulators">
+                        <Label styleClass="title" text="%supported_emulators">
                            <font>
                               <Font name="Berlin Sans FB" />
                            </font>
@@ -182,7 +182,7 @@
                               <Insets />
                            </HBox.margin>
                         </ImageView>
-                        <Label styleClass="subtext" text="Ryujinx">
+                        <Label styleClass="subtext" text="%ryujinx">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -206,7 +206,7 @@
                               <Insets />
                            </HBox.margin>
                         </ImageView>
-                        <Label styleClass="subtext" text="Yuzu">
+                        <Label styleClass="subtext" text="%yuzu">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -222,7 +222,7 @@
                   </HBox>
                   <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="396.0" VBox.vgrow="ALWAYS">
                      <children>
-                        <Button fx:id="buttonOpenSavesManager" disable="true" mnemonicParsing="false" onMousePressed="#handleOpenSaveManager" stylesheets="@../style.css" text="Open with Saves Manager" HBox.hgrow="NEVER">
+                        <Button fx:id="buttonOpenSavesManager" disable="true" mnemonicParsing="false" onMousePressed="#handleOpenSaveManager" stylesheets="@../style.css" text="%open_save_manager" HBox.hgrow="NEVER">
                            <font>
                               <Font size="16.0" />
                            </font>

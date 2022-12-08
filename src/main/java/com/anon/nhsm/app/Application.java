@@ -1,6 +1,7 @@
 package com.anon.nhsm.app;
 
 import com.anon.nhsm.AppProperties;
+import com.anon.nhsm.LanguageMap;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.data.AppPaths;
 import javafx.application.Platform;
@@ -8,12 +9,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Locale;
 
 public class Application extends javafx.application.Application {
     public static Stage PRIMARY_STAGE;
     public static AnchorPane ANCHOR_PANE;
+    public static LanguageMap LANG;
+    public static Locale USING_LOCALE = Locale.US;
     private IOException setupExceptionThrown;
     private AppProperties appProperties;
+
 
     public Application() {
         super();
@@ -32,6 +37,9 @@ public class Application extends javafx.application.Application {
 
     @Override
     public void start(final Stage stage) throws IOException {
+        LANG = new LanguageMap(USING_LOCALE);
+        Locale.setDefault(USING_LOCALE);
+
         PRIMARY_STAGE = stage;
         Stages.showEmulatorSelector(appProperties);
 

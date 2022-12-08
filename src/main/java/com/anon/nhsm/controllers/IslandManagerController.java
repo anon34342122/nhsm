@@ -1,5 +1,6 @@
 package com.anon.nhsm.controllers;
 
+import com.anon.nhsm.LanguageMap;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.app.Application;
 import com.anon.nhsm.app.JavaFXHelper;
@@ -29,6 +30,7 @@ public class IslandManagerController {
     private static final Logger logger = LogManager.getLogger(IslandManagerController.class);
     private static final String LOCKED_SUFFIX = " (LOCKED)";
     private SaveManager saveManager;
+    private LanguageMap lang;
     @FXML private AnchorPane ap;
     @FXML private TableColumn<SaveMetadata, String> island;
     @FXML private TableColumn<SaveMetadata, String> folder;
@@ -57,7 +59,8 @@ public class IslandManagerController {
         return island.emulatorLocked() ? LOCKED_SUFFIX : "";
     }
 
-    public void init(final SaveManager saveManager) {
+    public void init(final SaveManager saveManager, final LanguageMap lang) {
+        this.lang = lang;
         this.saveManager = saveManager;
         island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + getIslandSuffix(p.getValue())));
         folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().islandDirectory(saveManager.getAppProperties()).toAbsolutePath().toString()));
@@ -88,6 +91,7 @@ public class IslandManagerController {
     public void handleAddIsland(final ActionEvent event) {
         try {
             final FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setResources(lang.getResourceBundle());
             fxmlLoader.setLocation(NewIslandController.class.getResource("new_island.fxml"));
             final DialogPane newIslandDialogPane = fxmlLoader.load();
             final NewIslandController controller = fxmlLoader.getController();
@@ -96,7 +100,7 @@ public class IslandManagerController {
             if (clickedButton.isPresent() && clickedButton.get() == ButtonType.FINISH) {
                 final Optional<SaveMetadata> newIslandMetadata = saveManager.createNewIsland(controller.getIslandName(), controller.getIslandDescription(), conflictingMetadata -> {
                     final String islandName = conflictingMetadata.island();
-                    Alerts.notifyNamingConflict("Could not create new '" + islandName + "' island", islandName);
+                    Alerts.notifyNamingConflict(lang.get("errors.cannot_create_new_island", islandName), islandName);
                 });
 
                 if (newIslandMetadata.isPresent()) {
@@ -139,6 +143,7 @@ public class IslandManagerController {
     public boolean promptToConvertLocalSaveIntoIsland(final Path localSaveMetadataFile) throws IOException {
         logger.info("Prompting to convert emulator local save into an island");
         final FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setResources(lang.getResourceBundle());
         fxmlLoader.setLocation(EmulatorLocalSaveController.class.getResource("emulator_local_save.fxml"));
         final DialogPane newIslandDialogPane = fxmlLoader.load();
         final EmulatorLocalSaveController controller = fxmlLoader.getController();
@@ -147,7 +152,7 @@ public class IslandManagerController {
         if (clickedButton.isPresent() && clickedButton.get() == ButtonType.FINISH) {
             return saveManager.convertLocalSaveToIsland(localSaveMetadataFile, controller.getIslandName(), controller.getIslandDescription(), conflictingMetadata -> {
                final String islandName = conflictingMetadata.island();
-               Alerts.notifyNamingConflict("Could not convert 'Emulator Local Save' to list of Islands", islandName);
+               Alerts.notifyNamingConflict(lang.get("errors.cannot_convert_local_save"), islandName);
             });
         }
 
@@ -191,7 +196,7 @@ public class IslandManagerController {
         try {
             final Optional<SaveMetadata> duplicatedIsland = saveManager.duplicateIsland(saveMetadata, conflictingMetadata -> {
                 final String islandName = conflictingMetadata.island();
-                Alerts.notifyNamingConflict("Could not duplicate '" + islandName + "' island", islandName);
+                Alerts.notifyNamingConflict(lang.get("errors.cannot_duplicate_island", islandName), islandName);
             });
 
             if (duplicatedIsland.isPresent()) {
@@ -217,7 +222,7 @@ public class IslandManagerController {
         try {
             final SaveMetadata newSaveMetadata = editIslandDetails(oldSaveMetadata, conflictingMetadata -> {
                 final String islandName = conflictingMetadata.island();
-                Alerts.notifyNamingConflict("Could not edit '" + oldSaveMetadata.island() + "' island", islandName);
+                Alerts.notifyNamingConflict(lang.get("errors.cannot_edit_island", islandName), islandName);
             });
             if (newSaveMetadata != oldSaveMetadata) {
                 refreshIslandTables();
@@ -231,6 +236,7 @@ public class IslandManagerController {
         try {
             logger.info("Handling edit of" + oldSaveMetadata.island());
             final FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setResources(lang.getResourceBundle());
             fxmlLoader.setLocation(EditIslandController.class.getResource("edit_island.fxml"));
             final DialogPane newIslandDialogPane = fxmlLoader.load();
             final EditIslandController controller = fxmlLoader.getController();

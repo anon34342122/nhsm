@@ -27,19 +27,19 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <TextField fx:id="islandName" prefWidth="487.0" promptText="Island Name..." GridPane.rowIndex="1" GridPane.valignment="BOTTOM" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Island Name" GridPane.rowIndex="1" GridPane.valignment="TOP">
+            <TextField fx:id="islandName" prefWidth="487.0" promptText="%island_name.prompt" GridPane.rowIndex="1" GridPane.valignment="BOTTOM" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%island_name" GridPane.rowIndex="1" GridPane.valignment="TOP">
                <font>
                   <Font size="18.0" />
                </font>
             </Text>
-            <TextField fx:id="description" promptText="Description..." GridPane.rowIndex="3" GridPane.valignment="BOTTOM" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Description" GridPane.rowIndex="3" GridPane.valignment="TOP">
+            <TextField fx:id="description" promptText="%island_description.prompt" GridPane.rowIndex="3" GridPane.valignment="BOTTOM" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%island_description" GridPane.rowIndex="3" GridPane.valignment="TOP">
                <font>
                   <Font size="18.0" />
                </font>
             </Text>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="IMPORTANT: You need to give a name to your Emulator Local Save before you can proceed. This will save it as a persistent island to your Islands list." wrappingWidth="500.0">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="%emulator_local_save.header" wrappingWidth="500.0">
                <font>
                   <Font size="16.0" />
                </font>
