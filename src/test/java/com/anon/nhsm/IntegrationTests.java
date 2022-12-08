@@ -58,8 +58,6 @@ class IntegrationTests {
 
     private static final Logger logger = LogManager.getLogger(IntegrationTests.class);
     private static Path SANDBOX_DIRECTORY;
-    public static final String SETUP_TEST_METADATA_NAME = "Setup Test Metadata";
-    public static final String SETUP_TEST_METADATA_DESCRIPTION = "This is a description for test metadata";
     private static final List<IntegrationTest> INTEGRATION_TESTS = new ArrayList<>();
 
     private static String relativePath(final Path path) {
