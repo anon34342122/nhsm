@@ -70,18 +70,6 @@ class IntegrationTests {
         return SANDBOX_DIRECTORY.resolve(name);
     }
 
-    SaveMetadata createEmulatorLocalSaveDirectory(final SaveManager saveManager, final Path file) throws IOException {
-        final Path localSaveMetadataFile = file.resolve(AppPaths.SAVE_METADATA_FILE_NAME);
-        final SaveMetadata localSaveMetadata = new SaveMetadata(SETUP_TEST_METADATA_NAME, SETUP_TEST_METADATA_DESCRIPTION, new Date(), false);
-        saveManager.writeMetadataFile(localSaveMetadataFile, localSaveMetadata);
-        return localSaveMetadata;
-    }
-
-    SaveMetadata readSaveMetadataInDirectory(final SaveManager saveManager, final Path file) throws IOException {
-        final Path localSaveMetadataFile = file.resolve(AppPaths.SAVE_METADATA_FILE_NAME);
-        return saveManager.readMetdataFile(localSaveMetadataFile);
-    }
-
     private static IntegrationTest createIntegrationTest(final Path copyFromDirectory, final EmulatorType emulatorTarget) throws IOException {
         final String directoryName = copyFromDirectory.getFileName().toString();
         final Path root = sandbox(directoryName).resolve(emulatorTarget.name());
@@ -141,20 +129,16 @@ class IntegrationTests {
 
         try {
             final SaveManager.Config config = saveManager.getConfig();
-            final SaveMetadata writtenSaveMetadata = createEmulatorLocalSaveDirectory(saveManager, config.emulatorSaveDirectory());
-
-            logger.info("Written local save metadata: " + writtenSaveMetadata.toString());
-
-            final SaveMetadata readSaveMetadata = readSaveMetadataInDirectory(saveManager, config.emulatorSaveDirectory());
-            assertNotNull(readSaveMetadata, "Written save metadata is null after reading");
-            assertEquals(SETUP_TEST_METADATA_NAME, readSaveMetadata.island(), "Read save metadata name is different from what we wrote");
-            assertEquals(SETUP_TEST_METADATA_DESCRIPTION, readSaveMetadata.description(), "Read save metadata description is different from what we wrote");
+            final Path localSaveMetadataFile = config.emulatorSaveDirectory().resolve(AppPaths.SAVE_METADATA_FILE_NAME);
+            final SaveMetadata readSaveMetadata = saveManager.readMetdataFile(localSaveMetadataFile);
 
             assertNull(saveManager.getEmulatorSaveMetadata(), "Save Manager already has a loaded emulator save metdata for some reason");
 
             saveManager.setup();
 
-            assertEquals(readSaveMetadata, saveManager.getEmulatorSaveMetadata(), "Save Manager did not have the same emulator save metadata after setup");
+            if (readSaveMetadata != null) {
+                assertEquals(readSaveMetadata, saveManager.getEmulatorSaveMetadata(), "Save Manager did not have the same emulator save metadata after setup");
+            }
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -364,10 +348,56 @@ class IntegrationTests {
             final String swapIslandName = "Swap Island";
 
             final SaveMetadata swapIslandMetadata = SaveMetadata.name(swapIslandName);
-            saveManager.swapWithLocalSave(swapIslandMetadata, localSaveMetadataFile -> false);
+            final Path swapIslandDirectory = swapIslandMetadata.islandDirectory(appProperties);
+            final Path localSaveDirectory = saveManager.getConfig().emulatorSaveDirectory();
 
-            // TODO: Test for convert local save
-            // TODO: Test for sub directories staying in swap, and swap.dat
+            final SaveMetadata localSaveMetadata = saveManager.readMetdataFile(localSaveDirectory.resolve(AppPaths.SAVE_METADATA_FILE_NAME));
+
+            Path localLockFile = null;
+            if (localSaveMetadata != null) {
+                localLockFile = localSaveMetadata.lockFile(appProperties);
+                assertTrue(Files.exists(localLockFile), "Local save has island metadata and is being used, but the nhsm directory has no lock file");
+            }
+
+            assertFalse(PathUtils.directoryAndFileContentEquals(swapIslandDirectory, localSaveDirectory), "Island contents should not be equal before swapping");
+
+            final boolean swapped = saveManager.swapWithLocalSave(swapIslandMetadata, localSaveMetadataFile -> {
+                final String conflictingName = "Conflicting Island";
+                final String islandName = "Ryujinx Island";
+                final String islandDescription = "";
+
+                final var firstConflict = new Object() {
+                    boolean hasConflicted;
+                };
+                final boolean firstConvert = saveManager.convertLocalSaveToIsland(localSaveMetadataFile, conflictingName, islandDescription, conflictingMetadata -> firstConflict.hasConflicted = true);
+
+                assertTrue(firstConflict.hasConflicted, "First convert to local save should have conflicted");
+                assertFalse(firstConvert, "First convert should have not succeeded");
+
+                final var secondConflict = new Object() {
+                    boolean hasConflicted;
+                };
+                final boolean secondConvert = saveManager.convertLocalSaveToIsland(localSaveMetadataFile, islandName, islandDescription, conflictingMetadata -> secondConflict.hasConflicted = true);
+
+                assertFalse(secondConflict.hasConflicted, "Second convert to local save should have not conflicted");
+                assertTrue(secondConvert, "Second convert should have succeeded");
+
+                return true;
+            });
+
+            final Path lockFile = swapIslandMetadata.lockFile(appProperties);
+
+            assertTrue(swapped, "Local save should have swapped successfully");
+            assertTrue(Files.exists(lockFile), "Lock file was not created when swapping");
+
+            if (localLockFile != null) {
+                assertFalse(Files.exists(localLockFile), "Local save should have lost its lock file after being swapped with another island");
+            }
+
+            Files.deleteIfExists(lockFile); // Delete to check for directory equality
+            assertTrue(PathUtils.directoryAndFileContentEquals(swapIslandDirectory, localSaveDirectory), "Island contents were not equal after swapping");
+            Files.createFile(lockFile); // Recreate after checking for equality
+            assertTrue(Files.exists(lockFile), "Lock file was not recreated after checking for equality");
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

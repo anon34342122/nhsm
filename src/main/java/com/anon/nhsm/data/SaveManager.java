@@ -5,6 +5,7 @@ import com.anon.nhsm.Main;
 import com.anon.nhsm.app.Application;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.logging.log4j.LogManager;
@@ -96,11 +97,11 @@ public class SaveManager {
         }
 
         writeMetadataFile(metadataFile, newMetadata);
-        logger.info("Written metadata file to emulator local save: " + metadataFile.toAbsolutePath().toString());
+        logger.info("Written metadata file to emulator local save: " + metadataFile.toAbsolutePath());
         return true;
     }
 
-    public void swapWithLocalSave(final SaveMetadata islandMetadata, final ConvertLocalSaveIntoIsland onLocalSaveMetadataMissing) throws IOException {
+    public boolean swapWithLocalSave(final SaveMetadata islandMetadata, final ConvertLocalSaveIntoIsland onLocalSaveMetadataMissing) throws IOException {
         final Path nhsmIslandDirectory = islandMetadata.islandDirectory(appProperties);
         logger.info("Attempting to swap the contents of the '" + islandMetadata.island() + "' island with the emulator local save");
         if (!Files.exists(config.emulatorSaveDirectory())) {
@@ -111,12 +112,13 @@ public class SaveManager {
             final Path localSaveMetadataFile = config.emulatorSaveDirectory().resolve(AppPaths.SAVE_METADATA_FILE_NAME);
 
             if (!Files.exists(localSaveMetadataFile) && !onLocalSaveMetadataMissing.tryConvert(localSaveMetadataFile)) {
-                return;
+                return false;
             }
 
             final SaveMetadata localSaveMetadata = readMetdataFile(localSaveMetadataFile);
 
             if (localSaveMetadata != null) {
+                final Path localSaveNhsmIslandDirectory = localSaveMetadata.islandDirectory(appProperties);
                 final Path tmpDirectory = Files.createTempDirectory(UUID.randomUUID().toString());
 
                 // Deleting tmpPath if it exists, then creating it
@@ -131,25 +133,27 @@ public class SaveManager {
                 writeMetadataFile(config.emulatorSaveDirectory().resolve(AppPaths.SAVE_METADATA_FILE_NAME), localSaveMetadata.date(new Date()));
 
                 logger.info("Moving local save directory contents to the temp island directory: " + tmpIslandDir.toAbsolutePath());
-                Files.move(config.emulatorSaveDirectory(), tmpIslandDir);
+                PathUtils.copyDirectory(config.emulatorSaveDirectory(), tmpIslandDir);
+                PathUtils.deleteDirectory(config.emulatorSaveDirectory());
 
                 logger.info("Copy all contents of requested saved island: " + nhsmIslandDirectory + ", to the local save directory: " + config.emulatorSaveDirectory().toAbsolutePath());
                 PathUtils.copyDirectory(nhsmIslandDirectory, config.emulatorSaveDirectory());
 
-                logger.info("Create an emulator lock file for the requested save data's island directory: " + nhsmIslandDirectory);
-                final Path emulatorLockFile = nhsmIslandDirectory.resolve(AppPaths.EMULATOR_LOCK_FILE_NAME);
                 try {
+                    logger.info("Create an emulator lock file for the requested save data's island directory: " + nhsmIslandDirectory);
+                    final Path emulatorLockFile = islandMetadata.lockFile(appProperties);
                     Files.createFile(emulatorLockFile);
                 } catch (final IOException e) {
                     throw new IOException("Something went wrong, the emulator lock file could not be made.", e);
                 }
 
-                final Path localSaveNhsmIslandDirectory = localSaveMetadata.islandDirectory(appProperties);
                 logger.info("Delete all contents of the island directory the local save file was from: " + localSaveNhsmIslandDirectory.toAbsolutePath());
-                PathUtils.deleteDirectory(localSaveNhsmIslandDirectory);
+                if (Files.exists(localSaveNhsmIslandDirectory)) {
+                    PathUtils.deleteDirectory(localSaveNhsmIslandDirectory);
+                }
 
                 logger.info("Move all contents from the temp island directory to the island directory the local save file was from: " + localSaveNhsmIslandDirectory.toAbsolutePath());
-                Files.move(tmpIslandDir, localSaveNhsmIslandDirectory);
+                PathUtils.copyDirectory(tmpIslandDir, localSaveNhsmIslandDirectory);
 
                 logger.info("Delete the temp directory: " + tmpDirectory.toAbsolutePath());
                 PathUtils.deleteDirectory(tmpDirectory);
@@ -159,6 +163,8 @@ public class SaveManager {
                 logger.info("Successfully applied '" + islandMetadata.island() + "' to the local save directory");
             }
         }
+
+        return true;
     }
 
     public void extractIslands() throws IOException {
