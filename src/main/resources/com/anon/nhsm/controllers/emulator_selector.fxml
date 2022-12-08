@@ -241,8 +241,8 @@
                         </Button>
                         <MenuButton mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0">
                           <items>
-                            <MenuItem fx:id="english" mnemonicParsing="false" onAction="#handleChangeLanguage" text="%language.en_us" />
-                            <MenuItem fx:id="japanese" mnemonicParsing="false" onAction="#handleChangeLanguage" text="%language.ja" />
+                            <MenuItem fx:id="en_US" mnemonicParsing="false" onAction="#handleChangeLanguage" text="%language.en_us" />
+                            <MenuItem fx:id="ja" mnemonicParsing="false" onAction="#handleChangeLanguage" text="%language.ja" />
                           </items>
                            <graphic>
                               <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">

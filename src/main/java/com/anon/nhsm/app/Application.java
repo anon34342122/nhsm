@@ -41,7 +41,7 @@ public class Application extends javafx.application.Application {
 
     @Override
     public void start(final Stage stage) throws IOException {
-        setLanguage(Locale.getDefault());
+        setLanguage(LanguageMap.ID_TO_LOCALE.getOrDefault(appProperties.languageId(), Locale.US));
 
         PRIMARY_STAGE = stage;
         Stages.showEmulatorSelector(appProperties);

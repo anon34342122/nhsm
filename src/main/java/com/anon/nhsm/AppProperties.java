@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public record AppProperties(Path islandsDirectory, Path nhsExecutable, Path ryujinxSaveDirectory, Path yuzuSaveDirectory, EmulatorType emulatorTarget) {
+public record AppProperties(Path islandsDirectory, Path nhsExecutable, Path ryujinxSaveDirectory, Path yuzuSaveDirectory, EmulatorType emulatorTarget, String languageId) {
     public static Builder builder() {
         return new Builder();
     }
@@ -29,6 +29,7 @@ public record AppProperties(Path islandsDirectory, Path nhsExecutable, Path ryuj
         private Path ryujinxSaveDirectory;
         private Path yuzuSaveDirectory;
         private EmulatorType emulatorTarget;
+        private String languageId;
 
         private Builder() {
 
@@ -40,6 +41,7 @@ public record AppProperties(Path islandsDirectory, Path nhsExecutable, Path ryuj
             ryujinxSaveDirectory = copyFrom.ryujinxSaveDirectory;
             yuzuSaveDirectory = copyFrom.yuzuSaveDirectory;
             emulatorTarget = copyFrom.emulatorTarget;
+            languageId = copyFrom.languageId;
         }
 
         public Builder islandsDirectory(final Path path) {
@@ -67,13 +69,18 @@ public record AppProperties(Path islandsDirectory, Path nhsExecutable, Path ryuj
             return this;
         }
 
+        public Builder languageId(final String id) {
+            languageId = id;
+            return this;
+        }
+
         public AppProperties build() {
-            return new AppProperties(islandsDirectory, nhsExecutable, ryujinxSaveDirectory, yuzuSaveDirectory, emulatorTarget);
+            return new AppProperties(islandsDirectory, nhsExecutable, ryujinxSaveDirectory, yuzuSaveDirectory, emulatorTarget, languageId);
         }
     }
 
     public static class IO {
-        private static final AppProperties DEFAULT_PROPERTIES = AppProperties.builder().islandsDirectory(AppPaths.createIslandsDirectory()).build();
+        private static final AppProperties DEFAULT_PROPERTIES = AppProperties.builder().islandsDirectory(AppPaths.createIslandsDirectory()).languageId(LanguageMap.DEFAULT_LANG_ID).build();
 
         public static AppProperties loadAndValidateAppProperties() throws IOException {
             final AppProperties properties = readAppPropertiesFile(AppPaths.APP_PROPERTIES_FILE);

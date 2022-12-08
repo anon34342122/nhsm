@@ -23,13 +23,7 @@ public class Stages {
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
         stage.setTitle(Main.APPLICATION_NAME);
-
-        final double prevWidth = stage.getWidth();
-        final double prevHeight = stage.getHeight();
-        stage.setScene(scene);
-        stage.setHeight(prevHeight);
-        stage.setWidth(prevWidth);
-
+        setScenePreservingSize(stage, scene);
         JavaFXHelper.setStageIcon(stage, Application.class, "app_icon.png");
         final EmulatorSelectorController controller = fxmlLoader.getController();
         controller.init(appProperties, Application.LANG);
@@ -64,18 +58,23 @@ public class Stages {
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
         stage.setTitle(Main.APPLICATION_NAME);
-
-        final double prevWidth = stage.getWidth();
-        final double prevHeight = stage.getHeight();
-        stage.setScene(scene);
-        stage.setHeight(prevHeight);
-        stage.setWidth(prevWidth);
-
+        setScenePreservingSize(stage, scene);
         JavaFXHelper.setStageIcon(stage, Application.class, "app_icon.png");
         final IslandManagerController controller = fxmlLoader.getController();
         controller.init(saveManager, Application.LANG);
         Application.ANCHOR_PANE = controller.getAnchorPane();
         stage.show();
         return scene;
+    }
+
+    private static void setScenePreservingSize(final Stage stage, final Scene scene) {
+        final boolean shouldPreserverSize = stage.getScene() != null;
+        final double prevWidth = stage.getWidth();
+        final double prevHeight = stage.getHeight();
+        stage.setScene(scene);
+        if (shouldPreserverSize) {
+            stage.setHeight(prevHeight);
+            stage.setWidth(prevWidth);
+        }
     }
 }

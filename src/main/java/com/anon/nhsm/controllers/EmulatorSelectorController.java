@@ -218,22 +218,16 @@ public class EmulatorSelectorController {
         updateRyujinxSaveDirectory(selectedDirectory.toPath());
     }
 
-    public static Map<String, Locale> ID_TO_LOCALE = new HashMap<>();
-
-    static {
-        ID_TO_LOCALE.put("english", Locale.US);
-        ID_TO_LOCALE.put("japanese", Locale.JAPANESE);
-    }
-
     @FXML
     void handleChangeLanguage(final ActionEvent event) {
         if (event.getSource() instanceof MenuItem menuItem) {
             try {
                 final String id = menuItem.getId();
-                final Locale locale = ID_TO_LOCALE.getOrDefault(id, Locale.US);
+                final Locale locale = LanguageMap.ID_TO_LOCALE.getOrDefault(id, Locale.US);
 
                 if (locale != Locale.getDefault()) {
                     Application.setLanguage(locale);
+                    appProperties = Main.writeAppProperties(appProperties.copy().languageId(id).build());
                     Stages.showEmulatorSelector(appProperties);
                 }
             } catch (final IOException e) {

@@ -3,11 +3,16 @@ package com.anon.nhsm;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class LanguageMap {
+    public static final String DEFAULT_LANG_ID = "en_US";
+    public static Map<String, Locale> ID_TO_LOCALE = new HashMap<>();
+
+    static {
+        ID_TO_LOCALE.put(DEFAULT_LANG_ID, Locale.US);
+        ID_TO_LOCALE.put("ja", Locale.JAPANESE);
+    }
     private final ResourceBundle resourceBundle;
 
     public LanguageMap(final Locale locale) {
