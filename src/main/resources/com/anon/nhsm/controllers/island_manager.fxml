@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -19,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="ap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="665.0" prefWidth="1067.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.controllers.IslandManagerController">
+<AnchorPane fx:id="ap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.anon.nhsm.controllers.IslandManagerController">
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -32,34 +31,42 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <HBox alignment="CENTER" prefHeight="27.0" prefWidth="1067.0" styleClass="sideMenu" stylesheets="@../style.css">
+            <VBox prefHeight="100.0" prefWidth="100.0">
                <children>
-                  <AnchorPane prefHeight="40.0" prefWidth="40.0">
+                  <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="200.0">
                      <children>
-                        <ImageView fx:id="yuzuLogo" fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../app/yuzu_emulator.png" />
-                           </image>
-                        </ImageView>
-                        <ImageView fx:id="ryujinxLogo" fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true" visible="false">
-                           <image>
-                              <Image url="@../app/ryujinx.png" />
-                           </image>
-                        </ImageView>
+                        <AnchorPane prefHeight="40.0" prefWidth="40.0">
+                           <children>
+                              <ImageView fx:id="yuzuLogo" fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../app/yuzu_emulator.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fx:id="ryujinxLogo" fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                                 <image>
+                                    <Image url="@../app/ryujinx.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="20.0" right="10.0" />
+                           </HBox.margin>
+                        </AnchorPane>
+                        <Label styleClass="title" stylesheets="@../style.css" text="%local_save">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </Label>
                      </children>
-                     <HBox.margin>
-                        <Insets left="20.0" right="10.0" />
-                     </HBox.margin>
-                  </AnchorPane>
-                  <Label styleClass="title" stylesheets="@../style.css" text="%local_save" translateX="10.0">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
-                  <Label stylesheets="@../style.css" text="%emulator_notice" textAlignment="CENTER" translateX="40.0" translateY="11.0" />
-                  <ButtonBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="315.0" HBox.hgrow="ALWAYS">
-                     <buttons>
-                        <Button fx:id="localSaveEditor" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleLocalSaveEditor" stylesheets="@../style.css" text="%button.save_editor">
+                     <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="0.0" prefWidth="315.0" spacing="10.0">
+                        <Button fx:id="localSaveEditor" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleLocalSaveEditor" prefWidth="170.0" stylesheets="@../style.css" text="%button.save_editor">
                            <graphic>
                               <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
                                  <image>
@@ -74,16 +81,20 @@
                               <Insets />
                            </opaqueInsets>
                         </Button>
-                     </buttons>
+                     <Label stylesheets="@../style.css" text="%emulator_notice" textAlignment="CENTER">
+                        <HBox.margin>
+                           <Insets left="40.0" />
+                        </HBox.margin>
+                     </Label>
                      <padding>
-                        <Insets right="10.0" />
+                        <Insets bottom="15.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
-                  </ButtonBar>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
                </children>
-               <padding>
-                  <Insets bottom="10.0" top="10.0" />
-               </padding>
-            </HBox>
+            </VBox>
             <TableView fx:id="emulatorLocalSave" fixedCellSize="50.0" prefHeight="80.0" prefWidth="1067.0" stylesheets="@../style.css" VBox.vgrow="ALWAYS">
                <columns>
                   <TableColumn fx:id="localIsland" editable="false" maxWidth="2500.0" prefWidth="2500.0" text="%table.island" />
@@ -95,124 +106,132 @@
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>
             </TableView>
-            <HBox alignment="CENTER" fillHeight="false" prefHeight="63.0" prefWidth="1067.0" styleClass="sideMenu" stylesheets="@../style.css">
+            <VBox prefHeight="100.0" prefWidth="100.0">
                <children>
-                  <AnchorPane prefHeight="40.0" prefWidth="40.0">
+                  <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="200.0">
                      <children>
-                        <ImageView fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../app/islands_icon.png" />
-                           </image>
-                        </ImageView>
+                        <AnchorPane prefHeight="40.0" prefWidth="40.0">
+                           <HBox.margin>
+                              <Insets left="20.0" right="10.0" />
+                           </HBox.margin>
+                           <children>
+                              <ImageView fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../app/islands_icon.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </AnchorPane>
+                        <Label prefHeight="30.0" prefWidth="191.0" styleClass="title" stylesheets="@../style.css" text="%islands">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </Label>
                      </children>
-                     <HBox.margin>
-                        <Insets left="20.0" right="10.0" />
-                     </HBox.margin>
-                  </AnchorPane>
-                  <Label prefHeight="30.0" prefWidth="191.0" styleClass="title" stylesheets="@../style.css" text="%islands" translateX="10.0">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
-                  <ButtonBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="0.0" prefWidth="992.0" HBox.hgrow="ALWAYS">
-                    <buttons>
-                        <Button fx:id="addIsland" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleAddIsland" styleClass="newIslandButton" stylesheets="@../style.css" text="%button.new_island">
-                           <graphic>
-                              <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
-                                 <image>
-                                    <Image url="@../app/add_island.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </Button>
-                        <Button fx:id="edit" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleEdit" stylesheets="@../style.css" text="%button.edit">
-                           <graphic>
-                              <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
-                                 <image>
-                                    <Image url="@../app/edit.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </Button>
-                        <Button fx:id="saveEditor" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleSaveEditor" stylesheets="@../style.css" text="%button.save_editor">
-                           <graphic>
-                              <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
-                                 <image>
-                                    <Image url="@../app/save_editor.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </Button>
-                        <Button fx:id="duplicate" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleDuplicateIsland" stylesheets="@../style.css" text="%button.duplicate">
-                           <graphic>
-                              <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
-                                 <image>
-                                    <Image url="@../app/duplicate.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </Button>
-                        <Button fx:id="deleteIsland" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleDeleteIsland" styleClass="deleteButton" stylesheets="@../style.css" text="%button.delete_island">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <graphic>
-                              <ImageView fitHeight="25.0" fitWidth="25.0">
-                                 <image>
-                                    <Image url="@../app/delete.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                        </Button>
-                      <Button fx:id="applyToLocal" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleSwapWithLocal" styleClass="swapButton" stylesheets="@../style.css" text="%button.swap_local">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <graphic>
-                              <ImageView fitHeight="27.0" fitWidth="24.0">
-                                 <image>
-                                    <Image url="@../app/swap.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                        </Button>
-                    </buttons>
                      <padding>
-                        <Insets right="10.0" />
+                        <Insets bottom="10.0" top="10.0" />
                      </padding>
-                  </ButtonBar>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="0.0" prefWidth="1000.0" spacing="10.0">
+                     <Button fx:id="addIsland" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleAddIsland" prefWidth="170.0" styleClass="newIslandButton" stylesheets="@../style.css" text="%button.new_island">
+                        <graphic>
+                           <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
+                              <image>
+                                 <Image url="@../app/add_island.png" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                        <opaqueInsets>
+                           <Insets />
+                        </opaqueInsets>
+                     </Button>
+                     <Button fx:id="edit" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleEdit" prefWidth="170.0" stylesheets="@../style.css" text="%button.edit">
+                        <graphic>
+                           <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
+                              <image>
+                                 <Image url="@../app/edit.png" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                        <opaqueInsets>
+                           <Insets />
+                        </opaqueInsets>
+                     </Button>
+                     <Button fx:id="saveEditor" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleSaveEditor" prefWidth="170.0" stylesheets="@../style.css" text="%button.save_editor">
+                        <graphic>
+                           <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
+                              <image>
+                                 <Image url="@../app/save_editor.png" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                        <opaqueInsets>
+                           <Insets />
+                        </opaqueInsets>
+                     </Button>
+                     <Button fx:id="duplicate" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleDuplicateIsland" prefWidth="170.0" stylesheets="@../style.css" text="%button.duplicate">
+                        <graphic>
+                           <ImageView fitHeight="27.0" fitWidth="27.0" nodeOrientation="INHERIT">
+                              <image>
+                                 <Image url="@../app/duplicate.png" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                        <opaqueInsets>
+                           <Insets />
+                        </opaqueInsets>
+                     </Button>
+                     <Button fx:id="deleteIsland" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleDeleteIsland" prefWidth="170.0" styleClass="deleteButton" stylesheets="@../style.css" text="%button.delete_island">
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                        <opaqueInsets>
+                           <Insets />
+                        </opaqueInsets>
+                        <graphic>
+                           <ImageView fitHeight="25.0" fitWidth="25.0">
+                              <image>
+                                 <Image url="@../app/delete.png" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                     </Button>
+                     <Button fx:id="applyToLocal" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleSwapWithLocal" prefWidth="170.0" styleClass="swapButton" stylesheets="@../style.css" text="%button.swap_local">
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                        <opaqueInsets>
+                           <Insets />
+                        </opaqueInsets>
+                        <graphic>
+                           <ImageView fitHeight="27.0" fitWidth="24.0">
+                              <image>
+                                 <Image url="@../app/swap.png" />
+                              </image>
+                           </ImageView>
+                        </graphic>
+                     </Button>
+                     <padding>
+                        <Insets bottom="15.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
                </children>
-            </HBox>
+            </VBox>
             <TableView fx:id="saves" fixedCellSize="50.0" prefHeight="350.0" prefWidth="600.0" stylesheets="@../style.css" VBox.vgrow="ALWAYS">
               <columns>
                 <TableColumn fx:id="island" editable="false" maxWidth="2500.0" prefWidth="2500.0" text="%table.island" />

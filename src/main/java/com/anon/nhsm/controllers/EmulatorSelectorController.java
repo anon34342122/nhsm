@@ -8,9 +8,11 @@ import com.anon.nhsm.app.Application;
 import com.anon.nhsm.app.JavaFXHelper;
 import com.anon.nhsm.data.AppPaths;
 import com.anon.nhsm.data.EmulatorType;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -25,9 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 
 public class EmulatorSelectorController {
@@ -216,5 +216,29 @@ public class EmulatorSelectorController {
         }
 
         updateRyujinxSaveDirectory(selectedDirectory.toPath());
+    }
+
+    public static Map<String, Locale> ID_TO_LOCALE = new HashMap<>();
+
+    static {
+        ID_TO_LOCALE.put("english", Locale.US);
+        ID_TO_LOCALE.put("japanese", Locale.JAPANESE);
+    }
+
+    @FXML
+    void handleChangeLanguage(final ActionEvent event) {
+        if (event.getSource() instanceof MenuItem menuItem) {
+            try {
+                final String id = menuItem.getId();
+                final Locale locale = ID_TO_LOCALE.getOrDefault(id, Locale.US);
+
+                if (locale != Locale.getDefault()) {
+                    Application.setLanguage(locale);
+                    Stages.showEmulatorSelector(appProperties);
+                }
+            } catch (final IOException e) {
+                JavaFXHelper.openErrorAlert(e);
+            }
+        }
     }
 }

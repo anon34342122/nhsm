@@ -5,6 +5,7 @@ import com.anon.nhsm.LanguageMap;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.data.AppPaths;
 import javafx.application.Platform;
+import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -15,10 +16,8 @@ public class Application extends javafx.application.Application {
     public static Stage PRIMARY_STAGE;
     public static AnchorPane ANCHOR_PANE;
     public static LanguageMap LANG;
-    public static Locale USING_LOCALE = Locale.US;
     private IOException setupExceptionThrown;
     private AppProperties appProperties;
-
 
     public Application() {
         super();
@@ -35,10 +34,14 @@ public class Application extends javafx.application.Application {
         launch();
     }
 
+    public static void setLanguage(final Locale locale) {
+        Locale.setDefault(locale);
+        LANG = new LanguageMap(Locale.getDefault());
+    }
+
     @Override
     public void start(final Stage stage) throws IOException {
-        LANG = new LanguageMap(USING_LOCALE);
-        Locale.setDefault(USING_LOCALE);
+        setLanguage(Locale.getDefault());
 
         PRIMARY_STAGE = stage;
         Stages.showEmulatorSelector(appProperties);
@@ -49,11 +52,16 @@ public class Application extends javafx.application.Application {
         }
 
         if (appProperties.emulatorTarget() != null) {
+            final Scene scene;
             if (appProperties.emulatorTarget().getSaveDirectory(appProperties) == null) {
                 JavaFXHelper.openErrorAlert(new RuntimeException("The save directory was null for this emulator even though the app properties has a set emulator target"));
-                Stages.showEmulatorSelector(appProperties);
+                scene = Stages.showEmulatorSelector(appProperties);
             } else {
-                Stages.showIslandManager(appProperties);
+                scene = Stages.showIslandManager(appProperties);
+            }
+
+            if (scene != null) {
+                scene.getWindow().centerOnScreen();
             }
         }
     }

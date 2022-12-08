@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 
 public class Stages {
-    public static void showEmulatorSelector(final AppProperties appProperties) throws IOException {
+    public static Scene showEmulatorSelector(final AppProperties appProperties) throws IOException {
         final Stage stage = Application.PRIMARY_STAGE;
         final URL view = EmulatorSelectorController.class.getResource("emulator_selector.fxml");
         final FXMLLoader fxmlLoader = new FXMLLoader(view);
@@ -23,12 +23,19 @@ public class Stages {
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
         stage.setTitle(Main.APPLICATION_NAME);
+
+        final double prevWidth = stage.getWidth();
+        final double prevHeight = stage.getHeight();
         stage.setScene(scene);
+        stage.setHeight(prevHeight);
+        stage.setWidth(prevWidth);
+
         JavaFXHelper.setStageIcon(stage, Application.class, "app_icon.png");
         final EmulatorSelectorController controller = fxmlLoader.getController();
         controller.init(appProperties, Application.LANG);
         Application.ANCHOR_PANE = controller.getAnchorPane();
         stage.show();
+        return scene;
     }
 
     private static SaveManager createSaveManager(final AppProperties appProperties) {
@@ -43,11 +50,11 @@ public class Stages {
         return null;
     }
 
-    public static void showIslandManager(final AppProperties appProperties) throws IOException {
+    public static Scene showIslandManager(final AppProperties appProperties) throws IOException {
         final SaveManager saveManager = createSaveManager(appProperties);
 
         if (saveManager == null) {
-            return;
+            return null;
         }
 
         final Stage stage = Application.PRIMARY_STAGE;
@@ -57,11 +64,18 @@ public class Stages {
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
         stage.setTitle(Main.APPLICATION_NAME);
+
+        final double prevWidth = stage.getWidth();
+        final double prevHeight = stage.getHeight();
         stage.setScene(scene);
+        stage.setHeight(prevHeight);
+        stage.setWidth(prevWidth);
+
         JavaFXHelper.setStageIcon(stage, Application.class, "app_icon.png");
         final IslandManagerController controller = fxmlLoader.getController();
         controller.init(saveManager, Application.LANG);
         Application.ANCHOR_PANE = controller.getAnchorPane();
         stage.show();
+        return scene;
     }
 }

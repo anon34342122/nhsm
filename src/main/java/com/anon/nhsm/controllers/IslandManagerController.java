@@ -28,7 +28,7 @@ import java.util.Optional;
 
 public class IslandManagerController {
     private static final Logger logger = LogManager.getLogger(IslandManagerController.class);
-    private static final String LOCKED_SUFFIX = " (LOCKED)";
+    private static String LOCKED_SUFFIX;
     private SaveManager saveManager;
     private LanguageMap lang;
     @FXML private AnchorPane ap;
@@ -56,12 +56,15 @@ public class IslandManagerController {
     }
 
     private String getIslandSuffix(final SaveMetadata island) {
-        return island.emulatorLocked() ? LOCKED_SUFFIX : "";
+        return " " + (island.emulatorLocked() ? LOCKED_SUFFIX : "");
     }
 
     public void init(final SaveManager saveManager, final LanguageMap lang) {
         this.lang = lang;
         this.saveManager = saveManager;
+
+        LOCKED_SUFFIX = lang.get("locked_suffix");
+
         island.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().island() + getIslandSuffix(p.getValue())));
         folder.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().islandDirectory(saveManager.getAppProperties()).toAbsolutePath().toString()));
         description.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().description()));
