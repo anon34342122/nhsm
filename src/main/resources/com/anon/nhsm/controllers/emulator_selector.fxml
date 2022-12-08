@@ -34,7 +34,7 @@
                <children>
                   <VBox fx:id="contentAreaNoSelection" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="contentArea" stylesheets="@../style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Label text="%select_emulator">
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="600.0" text="%select_emulator" textAlignment="CENTER" wrapText="true">
                            <font>
                               <Font size="16.0" />
                            </font></Label>

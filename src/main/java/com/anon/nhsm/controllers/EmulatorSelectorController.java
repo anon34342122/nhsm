@@ -222,14 +222,8 @@ public class EmulatorSelectorController {
     void handleChangeLanguage(final ActionEvent event) {
         if (event.getSource() instanceof MenuItem menuItem) {
             try {
-                final String id = menuItem.getId();
-                final Locale locale = LanguageMap.ID_TO_LOCALE.getOrDefault(id, Locale.US);
-
-                if (locale != Locale.getDefault()) {
-                    Application.setLanguage(locale);
-                    appProperties = Main.writeAppProperties(appProperties.copy().languageId(id).build());
-                    Stages.showEmulatorSelector(appProperties);
-                }
+                final String languageId = menuItem.getId();
+                appProperties = Application.changeLanguage(languageId, appProperties);
             } catch (final IOException e) {
                 JavaFXHelper.openErrorAlert(e);
             }

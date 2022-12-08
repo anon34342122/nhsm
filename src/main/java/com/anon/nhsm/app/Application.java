@@ -2,6 +2,7 @@ package com.anon.nhsm.app;
 
 import com.anon.nhsm.AppProperties;
 import com.anon.nhsm.LanguageMap;
+import com.anon.nhsm.Main;
 import com.anon.nhsm.Stages;
 import com.anon.nhsm.data.AppPaths;
 import javafx.application.Platform;
@@ -34,9 +35,21 @@ public class Application extends javafx.application.Application {
         launch();
     }
 
-    public static void setLanguage(final Locale locale) {
+    private static void setLanguage(final Locale locale) {
         Locale.setDefault(locale);
         LANG = new LanguageMap(Locale.getDefault());
+    }
+
+    public static AppProperties changeLanguage(final String languageId, final AppProperties appProperties) throws IOException {
+        final Locale locale = LanguageMap.ID_TO_LOCALE.getOrDefault(languageId, Locale.US);
+
+        if (locale != Locale.getDefault()) {
+            Application.setLanguage(locale);
+            final AppProperties updateAppProperties = Main.writeAppProperties(appProperties.copy().languageId(languageId).build());
+            Stages.showEmulatorSelector(appProperties);
+            return updateAppProperties;
+        }
+        return appProperties;
     }
 
     @Override
