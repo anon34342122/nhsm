@@ -97,7 +97,7 @@ public record AppProperties(Path islandsDirectory, Path nhsExecutable, Path ryuj
                 if (!validated.equals(properties)) {
                     return Main.writeAppProperties(validated);
                 }
-            } else { // Write empty properties file
+            } else {
                 return Main.writeAppProperties(DEFAULT_PROPERTIES);
             }
 
