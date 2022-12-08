@@ -103,11 +103,18 @@ public class SaveManager {
 
     public boolean swapWithLocalSave(final SaveMetadata islandMetadata, final ConvertLocalSaveIntoIsland onLocalSaveMetadataMissing) throws IOException {
         final Path nhsmIslandDirectory = islandMetadata.islandDirectory(appProperties);
-        logger.info("Attempting to swap the contents of the '" + islandMetadata.island() + "' island with the emulator local save");
+        logger.info("Attempting to swap the contents of the '" + islandMetadata.island() + "' island with the emulator local save at: " + config.emulatorSaveDirectory().toAbsolutePath());
         if (!Files.exists(config.emulatorSaveDirectory())) {
-            logger.info("Copying requested save data's island folder contents to the emulator's local save directory.");
+            logger.info("Emulator save directory does not exist, creating directories: " + config.emulatorSaveDirectory());
             Files.createDirectories(config.emulatorSaveDirectory());
+            logger.info("Copying requested save data's island folder contents to the emulator's local save directory");
             PathUtils.copyDirectory(nhsmIslandDirectory, config.emulatorSaveDirectory());
+
+            try {
+                createLockFile(islandMetadata, nhsmIslandDirectory);
+            } catch (final IOException e) {
+                throw new IOException("Something went wrong, the emulator lock file could not be made.", e);
+            }
         } else {
             final Path localSaveMetadataFile = config.emulatorSaveDirectory().resolve(AppPaths.SAVE_METADATA_FILE_NAME);
 
@@ -140,9 +147,7 @@ public class SaveManager {
                 PathUtils.copyDirectory(nhsmIslandDirectory, config.emulatorSaveDirectory());
 
                 try {
-                    logger.info("Create an emulator lock file for the requested save data's island directory: " + nhsmIslandDirectory);
-                    final Path emulatorLockFile = islandMetadata.lockFile(appProperties);
-                    Files.createFile(emulatorLockFile);
+                    createLockFile(islandMetadata, nhsmIslandDirectory);
                 } catch (final IOException e) {
                     throw new IOException("Something went wrong, the emulator lock file could not be made.", e);
                 }
@@ -165,6 +170,12 @@ public class SaveManager {
         }
 
         return true;
+    }
+
+    private void createLockFile(final SaveMetadata islandMetadata, final Path nhsmIslandDirectory) throws IOException {
+        logger.info("Create an emulator lock file for the requested save data's island directory: " + nhsmIslandDirectory);
+        final Path emulatorLockFile = islandMetadata.lockFile(appProperties);
+        Files.createFile(emulatorLockFile);
     }
 
     public void extractIslands() throws IOException {

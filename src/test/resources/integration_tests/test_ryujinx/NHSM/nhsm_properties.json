@@ -1,6 +1,6 @@
 {
-  "islandsDirectory": ".\\NHSM\\islands",
-  "ryujinxSaveDirectory": ".\\Ryujinx\\bis\\user\\save\\0000000000000001\\0",
-  "yuzuSaveDirectory": ".\\yuzu\\nand\\user\\save\\0000000000000000\\00000000000000000000000000000000\\01006F8002326000",
+  "islandsDirectory": "./NHSM/islands",
+  "ryujinxSaveDirectory": "./Ryujinx/bis/user/save/0000000000000001/0",
+  "yuzuSaveDirectory": "./yuzu/nand/user/save/0000000000000000/00000000000000000000000000000000/01006F8002326000",
   "version": "0.0.1"
 }

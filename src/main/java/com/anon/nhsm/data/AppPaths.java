@@ -16,8 +16,8 @@ public class AppPaths {
     public static final String SAVE_METADATA_FILE_NAME = "metadata.json";
     public static final String EMULATOR_LOCK_FILE_NAME = "emulator.lock";
     public static final String YUZU_GAME_ID = "01006F8002326000";
-    public static final String YUZU_AC_SAVE_PATH = "yuzu\\nand\\user\\save\\0000000000000000\\00000000000000000000000000000000\\" + YUZU_GAME_ID;
-    public static final String RYUJINX_SAVES_PATH = "Ryujinx\\bis\\user\\save";
+    public static final String YUZU_AC_SAVE_PATH = "yuzu/nand/user/save/0000000000000000/00000000000000000000000000000000/" + YUZU_GAME_ID;
+    public static final String RYUJINX_SAVES_PATH = "Ryujinx/bis/user/save";
     public static final String MAIN_DAT = "main.dat";
     public static final String TMP_DIR_NAME = "tmp";
     public static final String NHSE_EXECUTABLE = "NHSE.WinForms.exe";

@@ -33,7 +33,7 @@ class IntegrationTests {
 
         public IntegrationTest(final Path testIntegrationDirectory, final EmulatorType emulatorTarget) {
             final Path relativeIslands = AppPaths.USER_HOME.relativize(AppPaths.createIslandsDirectory());
-            final Path relativeRyujinx = AppPaths.USER_HOME.relativize(AppPaths.createRyujinxSavesDirectory().resolve("0000000000000001\\0"));
+            final Path relativeRyujinx = AppPaths.USER_HOME.relativize(AppPaths.createRyujinxSavesDirectory().resolve("0000000000000001/0"));
             final Path relativeYuzu = AppPaths.USER_HOME.relativize(AppPaths.createYuzuSaveDirectory());
 
             final AppProperties appProperties = AppProperties.builder()
@@ -88,7 +88,7 @@ class IntegrationTests {
             throw new RuntimeException(e);
         }
 
-        final Path integrationTestsDirectory = Paths.get(".\\src\\test\\resources\\integration_tests");
+        final Path integrationTestsDirectory = Paths.get("./src/test/resources/integration_tests");
 
         try (final DirectoryStream<Path> stream = Files.newDirectoryStream(integrationTestsDirectory)) {
             boolean hasIterated = false;
