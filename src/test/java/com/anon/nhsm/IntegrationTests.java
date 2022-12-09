@@ -186,11 +186,11 @@ class IntegrationTests {
 
         final String islandName = "Conflicting Island";
 
-        final SaveMetadata shouldConflict = SaveMetadata.name(islandName);
-        assertFalse(saveManager.verifyHasNoNameConflict(shouldConflict));
+        final SaveMetadata shouldConflict = SaveMetadata.name(islandName + " 2");
+        assertFalse(saveManager.verifyHasNoNameConflict(shouldConflict), "Island name (" + islandName + ") should not conflict with existing island");
 
-        final SaveMetadata shouldNotConflict = SaveMetadata.name(islandName + " 2");
-        assertTrue(saveManager.verifyHasNoNameConflict(shouldNotConflict));
+        final SaveMetadata shouldNotConflict = SaveMetadata.name(islandName);
+        assertTrue(saveManager.verifyHasNoNameConflict(shouldNotConflict), "Island name (" + islandName + ") should conflict with existing island");
     }
 
     @Order(2)

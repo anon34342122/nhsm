@@ -34,9 +34,9 @@ public class JavaFXHelper {
 
     public static void openErrorAlert(final Throwable throwable, final Runnable onClickedOk) {
         final Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(Main.APPLICATION_NAME + " Error");
+        alert.setTitle(Main.APPLICATION_DISPLAY_TITLE + " Error");
         alert.setHeaderText("Something went wrong");
-        alert.setContentText(Main.APPLICATION_NAME + " has thrown an exception, please feel free to send the contents of it below to the developers so we can fix it.");
+        alert.setContentText(Main.APPLICATION_DISPLAY_TITLE + " has thrown an exception, please feel free to send the contents of it below to the developers so we can fix it.");
         alert.initOwner(Application.PRIMARY_STAGE);
 
         final StringWriter sw = new StringWriter();

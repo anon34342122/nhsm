@@ -22,7 +22,7 @@ public class Stages {
         fxmlLoader.setResources(Application.LANG.getResourceBundle());
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
-        stage.setTitle(Main.APPLICATION_NAME);
+        stage.setTitle(Main.APPLICATION_DISPLAY_TITLE);
         setScenePreservingSize(stage, scene);
         JavaFXHelper.setStageIcon(stage, Main.class, "icon_png.png");
         final EmulatorSelectorController controller = fxmlLoader.getController();
@@ -57,7 +57,7 @@ public class Stages {
         fxmlLoader.setResources(Application.LANG.getResourceBundle());
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
-        stage.setTitle(Main.APPLICATION_NAME);
+        stage.setTitle(Main.APPLICATION_DISPLAY_TITLE);
         setScenePreservingSize(stage, scene);
         JavaFXHelper.setStageIcon(stage, Main.class, "icon_png.png");
         final IslandManagerController controller = fxmlLoader.getController();

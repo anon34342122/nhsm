@@ -12,7 +12,8 @@ import java.io.IOException;
 
 public class Main {
     public static final Semver DATA_VERSION = new Semver("0.0.1");
-    public static final String APPLICATION_NAME = "NHSM v" + Main.DATA_VERSION.getVersion();
+    public static final String APPLICATION_NAME = "NHSM";
+    public static final String APPLICATION_DISPLAY_TITLE = "NHSM v" + Main.DATA_VERSION.getVersion();
     public static GsonBuilder GSON = new GsonBuilder()
             .registerTypeAdapterFactory(new PathTypeAdapterFactory())
             .setPrettyPrinting();
