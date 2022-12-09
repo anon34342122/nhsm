@@ -7,6 +7,7 @@ plugins {
 }
 
 group 'com.anon'
+def currentOs = org.gradle.internal.os.OperatingSystem.current()
 
 repositories {
     mavenCentral()
@@ -14,7 +15,6 @@ repositories {
 
 ext {
     junitVersion = '5.9.0'
-    nhsmVersion = '1.0.0'
 }
 
 sourceCompatibility = '17'
@@ -50,12 +50,14 @@ test {
 }
 
 jlink {
+    def iconPath = 'src/main/resources/com/anon/nhsm/icon'
+
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     forceMerge('log4j-api' )
     forceMerge('log4j-core' )
     launcher {
-        name = "NHSM_v${nhsmVersion}"
-        jvmArgs = ['-Dlog4j.configurationFile=./runtime/bin/log4j2.xml']
+        name = "NHSM"
+        jvmArgs = ['-Dlog4j.configurationFile=log4j2.xml']
     }
     mergedModule {
         additive = true
@@ -66,18 +68,24 @@ jlink {
         uses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory';
     }
     jpackage {
-        icon = 'src/main/resources/com/anon/nhsm/app.ico'
-        skipInstaller = true
-        appVersion = "${nhsmVersion}"
-    }
-}
-
-tasks.jlink.doLast {
-    copy {
-        from('src/main/resources') {
-            include "log4j2.xml"
+        if (currentOs.windows) {
+            installerType = "msi"
+            installerOptions += [
+                    '--win-dir-chooser',
+                    '--win-shortcut',
+            ]
+            icon = "${iconPath}_ico.ico"
+        } else if (currentOs.linux) {
+            installerType = "deb"
+            installerOptions += [
+                    '--linux-shortcut'
+            ]
+            icon = "${iconPath}_png.png"
+        } else if (currentOs.macOsX) {
+            installerType = "pkg"
+            icon = "${iconPath}_icns.icns"
         }
-        into("$buildDir/image/bin")
+        appVersion = project.version
     }
 }
 

@@ -24,7 +24,7 @@ public class Stages {
         final Scene scene = new Scene(root);
         stage.setTitle(Main.APPLICATION_NAME);
         setScenePreservingSize(stage, scene);
-        JavaFXHelper.setStageIcon(stage, Application.class, "app_icon.png");
+        JavaFXHelper.setStageIcon(stage, Main.class, "icon_png.png");
         final EmulatorSelectorController controller = fxmlLoader.getController();
         controller.init(appProperties, Application.LANG);
         Application.ANCHOR_PANE = controller.getAnchorPane();
@@ -59,7 +59,7 @@ public class Stages {
         final Scene scene = new Scene(root);
         stage.setTitle(Main.APPLICATION_NAME);
         setScenePreservingSize(stage, scene);
-        JavaFXHelper.setStageIcon(stage, Application.class, "app_icon.png");
+        JavaFXHelper.setStageIcon(stage, Main.class, "icon_png.png");
         final IslandManagerController controller = fxmlLoader.getController();
         controller.init(saveManager, Application.LANG);
         Application.ANCHOR_PANE = controller.getAnchorPane();

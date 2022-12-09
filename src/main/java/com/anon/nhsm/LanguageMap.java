@@ -40,6 +40,6 @@ public class LanguageMap {
     }
 
     private static ResourceBundle getLanguages(final Locale locale) {
-        return ResourceBundle.getBundle("com.anon.nhsm.lang.", locale);
+        return ResourceBundle.getBundle("com.anon.nhsm.lang.lang", locale);
     }
 }

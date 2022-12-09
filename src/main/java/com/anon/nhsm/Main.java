@@ -11,8 +11,8 @@ import org.semver4j.Semver;
 import java.io.IOException;
 
 public class Main {
-    public static final Semver DATA_VERSION = new Semver("1.0.0");
-    public static final String APPLICATION_NAME = "NHSM";
+    public static final Semver DATA_VERSION = new Semver("0.0.1");
+    public static final String APPLICATION_NAME = "NHSM v" + Main.DATA_VERSION.getVersion();
     public static GsonBuilder GSON = new GsonBuilder()
             .registerTypeAdapterFactory(new PathTypeAdapterFactory())
             .setPrettyPrinting();
@@ -20,7 +20,7 @@ public class Main {
 
     public static void main(final String[] args) {
         LOGGER = LogManager.getLogger(Application.class);
-        LOGGER.info("Starting application");
+        LOGGER.info("Starting NHSM application: v" + DATA_VERSION.getVersion());
         Application.launchApp();
     }
 
