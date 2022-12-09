@@ -14,7 +14,7 @@ public class SystemInfo {
 
         if (operatingSystem.contains("win")) {
             return Platform.WINDOWS;
-        } else if (operatingSystem.contains("max")) {
+        } else if (operatingSystem.contains("mac")) {
             return Platform.MAC;
         } else if (operatingSystem.contains("nix") || operatingSystem.contains("nux") || operatingSystem.contains("aix")) {
             return Platform.LINUX;

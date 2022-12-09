@@ -14,6 +14,7 @@ repositories {
 
 ext {
     junitVersion = '5.9.0'
+    nhsmVersion = '1.0.0'
 }
 
 sourceCompatibility = '17'
@@ -53,7 +54,7 @@ jlink {
     forceMerge('log4j-api' )
     forceMerge('log4j-core' )
     launcher {
-        name = 'NHSM'
+        name = "NHSM_v${nhsmVersion}"
         jvmArgs = ['-Dlog4j.configurationFile=./runtime/bin/log4j2.xml']
     }
     mergedModule {
@@ -65,11 +66,9 @@ jlink {
         uses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory';
     }
     jpackage {
-        if (org.gradle.internal.os.OperatingSystem.current().windows) {
-            imageOptions = ['--icon', 'src/main/resources/com/anon/nhsm/app.ico']
-        }
+        icon = 'src/main/resources/com/anon/nhsm/app.ico'
         skipInstaller = true
-        appVersion = "0.0.1"
+        appVersion = "${nhsmVersion}"
     }
 }
 

@@ -2,6 +2,8 @@ package com.anon.nhsm.data;
 
 import com.anon.nhsm.Main;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class AppPaths {
+    private static Logger logger = LogManager.getLogger(AppPaths.class);
     public static Path APPLICATION_DIRECTORY;
     public static Path USER_HOME;
     public static Path APP_PROPERTIES_FILE;
@@ -25,6 +28,7 @@ public class AppPaths {
     public static void bootStrap() throws IOException {
         APPLICATION_DIRECTORY = createApplicationDirectory();
         APP_PROPERTIES_FILE = APPLICATION_DIRECTORY.resolve("nhsm_properties.json");
+        logger.info("Using APP_PROPERTIES file path: " + APP_PROPERTIES_FILE.toAbsolutePath());
     }
 
     public static Path createRyujinxSavesDirectory() {
@@ -41,22 +45,29 @@ public class AppPaths {
 
     public static Path createApplicationDirectory() throws IOException {
         final SystemInfo.Platform platform = SystemInfo.getPlatform();
+
+        logger.info("Creating application directory for platform: " + platform);
+
         USER_HOME = switch (platform) {
             case LINUX, SOLARIS, MAC -> getUnixHomeDirectory();
             case WINDOWS -> getWindowsHomeDirectory();
             default -> throw new IOException("OS not supported: " + platform.name());
         };
 
+        logger.info("Fetched USER_HOME: " + USER_HOME.toAbsolutePath());
         final Path applicationDirectory = USER_HOME.resolve(Main.APPLICATION_NAME);
+        logger.info("Resolved application directory: " + applicationDirectory.toAbsolutePath());
 
         if (!Files.exists(applicationDirectory)) {
             try {
+                logger.info("Application directory did not exist, creating directories now");
                 Files.createDirectories(applicationDirectory);
             } catch (final Exception e) {
                 throw new IOException("The application directory could not be created: " + applicationDirectory, e);
             }
         }
 
+        logger.info("Successfully created application directory");
         return applicationDirectory;
     }
 
