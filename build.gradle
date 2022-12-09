@@ -82,7 +82,6 @@ jlink {
             ]
             icon = "${iconPath}_png.png"
         } else if (currentOs.macOsX) {
-            installerType = "pkg"
             icon = "${iconPath}_icns.icns"
         }
         appVersion = project.version
